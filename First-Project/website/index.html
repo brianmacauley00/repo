@@ -274,6 +274,18 @@
   .beer-card:hover { transform: translateY(-3px); border-left-color: var(--amber-light); }
   .beer-card:hover::before { opacity: 0.04; }
 
+  .brew-search-hint {
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--amber-light);
+    margin-top: 0.75rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .beer-card:hover .brew-search-hint { opacity: 1; }
+
   .beer-card > * { position: relative; z-index: 1; }
 
   .beer-style-tag {
@@ -490,6 +502,590 @@
 
   .qa-chip:hover { border-color: var(--amber); color: var(--amber-light); }
 
+  /* ---- PHOTO GALLERY ---- */
+  #gallery { background: var(--cream-dark); }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  @media (max-width: 600px) { .gallery-grid { grid-template-columns: 1fr; } }
+
+  .gallery-img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    border-radius: 2px;
+    border: 3px solid var(--cream);
+    display: block;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+
+  .gallery-img:hover { transform: scale(1.02); border-color: var(--amber); }
+
+  .gallery-caption {
+    text-align: center;
+    font-size: 0.85rem;
+    font-style: italic;
+    color: var(--text-mid);
+    margin-top: 0.4rem;
+  }
+
+  /* ---- BREW COUNTER ---- */
+  #counter { background: var(--amber-dark); }
+  #counter .section-title { color: var(--cream); }
+  #counter .section-label { color: var(--amber-light); }
+  #counter .section-rule { background: var(--cream); opacity: 0.3; }
+
+  .counter-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .pint-display {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    min-height: 80px;
+  }
+
+  .pint-icon {
+    font-size: 2.2rem;
+    line-height: 1;
+    animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0) rotate(-20deg); opacity: 0; }
+    to   { transform: scale(1) rotate(0); opacity: 1; }
+  }
+
+  .counter-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 5rem;
+    font-weight: 900;
+    color: var(--cream);
+    line-height: 1;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  .counter-label {
+    font-size: 1rem;
+    color: var(--cream-dark);
+    opacity: 0.85;
+    font-style: italic;
+    letter-spacing: 0.05em;
+  }
+
+  .counter-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .counter-btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 2px solid var(--cream);
+    background: transparent;
+    color: var(--cream);
+    font-size: 1.6rem;
+    cursor: pointer;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, transform 0.1s;
+    line-height: 1;
+  }
+
+  .counter-btn:hover { background: rgba(255,255,255,0.15); }
+  .counter-btn:active { transform: scale(0.93); }
+  .counter-btn.add { background: var(--bark); border-color: var(--bark); font-size: 1.8rem; width: 64px; height: 64px; }
+  .counter-btn.add:hover { background: var(--bark-mid); }
+
+  .counter-reset {
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    background: transparent;
+    border: none;
+    color: var(--cream);
+    opacity: 0.5;
+    cursor: pointer;
+    font-family: 'Crimson Pro', serif;
+    margin-top: 0.5rem;
+    padding: 4px 8px;
+    transition: opacity 0.2s;
+  }
+
+  .counter-reset:hover { opacity: 1; }
+
+  .counter-stats {
+    display: flex;
+    gap: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.2);
+    padding-top: 1.25rem;
+    width: 100%;
+    max-width: 400px;
+    justify-content: center;
+  }
+
+  .cstat { text-align: center; }
+  .cstat-val { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--cream); }
+  .cstat-lbl { font-size: 0.75rem; color: var(--cream-dark); opacity: 0.7; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* ---- RECIPES ---- */
+  #recipes { background: var(--foam); }
+
+  .recipe-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 2rem;
+    margin-top: 2rem;
+    align-items: start;
+  }
+
+  @media (max-width: 680px) { .recipe-layout { grid-template-columns: 1fr; } }
+
+  .recipe-form-wrap {
+    background: white;
+    border: 1px solid var(--cream-dark);
+    border-top: 4px solid var(--amber);
+    padding: 1.5rem;
+    border-radius: 2px;
+  }
+
+  .recipe-form-wrap h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: var(--bark);
+    margin-bottom: 1.25rem;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 0.75rem;
+  }
+
+  .field label {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    font-family: 'Crimson Pro', serif;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    background: var(--foam);
+    border: 1px solid var(--cream-dark);
+    border-radius: 2px;
+    padding: 0.5rem 0.75rem;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.95rem;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus { border-color: var(--amber); }
+
+  .field textarea { resize: vertical; min-height: 80px; }
+
+  .img-upload-zone {
+    border: 2px dashed var(--cream-dark);
+    border-radius: 2px;
+    height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    overflow: hidden;
+    position: relative;
+    background: var(--foam);
+  }
+
+  .img-upload-zone:hover { border-color: var(--amber); background: var(--cream); }
+
+  .upload-icon { font-size: 1.8rem; line-height: 1; margin-bottom: 4px; }
+
+  .upload-hint {
+    font-size: 0.85rem;
+    color: var(--text-mid);
+    text-align: center;
+    font-style: italic;
+  }
+
+  .upload-sub {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    text-align: center;
+    margin-top: 2px;
+  }
+
+  #uploadPlaceholder { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 1rem; }
+
+  .clear-img-btn {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    font-size: 0.78rem;
+    font-family: 'Crimson Pro', serif;
+    cursor: pointer;
+    padding: 3px 0;
+    margin-top: 4px;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+  }
+
+  .clear-img-btn:hover { color: #c0392b; }
+
+  .recipe-photo {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 2px 2px 0 0;
+    display: block;
+    margin: -1.25rem -1.25rem 1rem -1.25rem;
+    width: calc(100% + 2.5rem);
+  }
+
+  .submit-recipe {
+    width: 100%;
+    background: var(--amber);
+    border: none;
+    color: var(--bark);
+    font-family: 'Crimson Pro', serif;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.7rem;
+    border-radius: 2px;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .submit-recipe:hover { background: var(--amber-light); }
+  .submit-recipe:active { transform: scale(0.98); }
+
+  .recipes-list { display: flex; flex-direction: column; gap: 1rem; }
+
+  .recipe-card-saved {
+    background: white;
+    border: 1px solid var(--cream-dark);
+    border-left: 5px solid var(--amber);
+    padding: 1.25rem 1.25rem 1rem;
+    border-radius: 2px;
+    animation: fadeUp 0.3s ease;
+    position: relative;
+  }
+
+  .recipe-delete-btn {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid var(--cream-dark);
+    background: white;
+    color: var(--text-light);
+    font-size: 0.75rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    padding: 0;
+  }
+
+  .recipe-delete-btn:hover {
+    background: #c0392b;
+    border-color: #c0392b;
+    color: white;
+  }
+
+  .recipe-card-saved h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--bark);
+    margin-bottom: 0.25rem;
+  }
+
+  .recipe-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.6rem;
+  }
+
+  .rtag {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: var(--cream-dark);
+    color: var(--text-mid);
+    padding: 2px 8px;
+    border-radius: 2px;
+  }
+
+  .recipe-notes {
+    font-size: 0.9rem;
+    color: var(--text-mid);
+    font-style: italic;
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+  }
+
+  .recipe-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  .r-btn {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: transparent;
+    border: 1px solid var(--cream-dark);
+    color: var(--text-light);
+    padding: 3px 10px;
+    border-radius: 2px;
+    cursor: pointer;
+    font-family: 'Crimson Pro', serif;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .r-btn:hover { border-color: var(--amber); color: var(--amber-dark); }
+  .r-btn.del:hover { border-color: #c0392b; color: #c0392b; }
+
+  .recipes-empty {
+    color: var(--text-light);
+    font-style: italic;
+    font-size: 0.95rem;
+    padding: 1.5rem;
+    text-align: center;
+    border: 2px dashed var(--cream-dark);
+    border-radius: 2px;
+  }
+
+  /* ---- STORE FINDER ---- */
+  #finder { background: var(--bark); }
+  #finder .section-title { color: var(--cream); }
+  #finder .section-label { color: var(--amber); }
+  #finder .section-rule { background: var(--amber); opacity: 0.5; }
+
+  .finder-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    gap: 2rem;
+    margin-top: 2rem;
+    align-items: start;
+  }
+
+  @media (max-width: 700px) { .finder-layout { grid-template-columns: 1fr; } }
+
+  .finder-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .radius-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .radius-row label {
+    font-size: 0.8rem;
+    color: var(--cream-dark);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .radius-row input[type=range] { flex: 1; }
+
+  .radius-val {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--amber-light);
+    min-width: 55px;
+    text-align: right;
+  }
+
+  .locate-btn {
+    background: var(--amber);
+    border: none;
+    color: var(--bark);
+    font-family: 'Crimson Pro', serif;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.75rem 1.5rem;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .locate-btn:hover { background: var(--amber-light); }
+  .locate-btn:active { transform: scale(0.98); }
+  .locate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .finder-status {
+    font-size: 0.9rem;
+    font-style: italic;
+    color: var(--text-light);
+    min-height: 1.4em;
+  }
+
+  .store-results {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    max-height: 520px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .store-card {
+    background: var(--bark-mid);
+    border: 1px solid var(--bark-light);
+    border-left: 4px solid var(--amber);
+    padding: 1rem 1.1rem;
+    border-radius: 2px;
+    animation: fadeUp 0.25s ease;
+    transition: border-left-color 0.2s;
+  }
+
+  .store-card:hover { border-left-color: var(--amber-light); }
+
+  .store-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .store-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--cream);
+    line-height: 1.2;
+  }
+
+  .store-dist {
+    font-size: 0.75rem;
+    background: var(--amber-dark);
+    color: var(--amber-light);
+    padding: 2px 8px;
+    border-radius: 2px;
+    white-space: nowrap;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
+
+  .store-addr {
+    font-size: 0.85rem;
+    color: var(--cream-dark);
+    opacity: 0.75;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+  }
+
+  .store-meta {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .store-rating {
+    font-size: 0.8rem;
+    color: var(--amber-light);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .store-open {
+    font-size: 0.75rem;
+    padding: 1px 7px;
+    border-radius: 2px;
+    letter-spacing: 0.05em;
+  }
+
+  .store-open.open { background: rgba(74,103,65,0.4); color: #9fd492; }
+  .store-open.closed { background: rgba(162,45,45,0.3); color: #f09595; }
+
+  .store-links {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+  }
+
+  .store-link {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--amber);
+    text-decoration: none;
+    border: 1px solid var(--bark-light);
+    padding: 3px 10px;
+    border-radius: 2px;
+    transition: border-color 0.2s, color 0.2s;
+    font-family: 'Crimson Pro', serif;
+  }
+
+  .store-link:hover { border-color: var(--amber); color: var(--amber-light); }
+
+  .finder-empty {
+    color: var(--text-light);
+    font-style: italic;
+    font-size: 0.95rem;
+    padding: 2rem 1rem;
+    text-align: center;
+    border: 2px dashed var(--bark-light);
+    border-radius: 2px;
+  }
+
   /* ---- FOOTER ---- */
   footer {
     background: var(--bark);
@@ -501,6 +1097,299 @@
   }
 
   footer strong { color: var(--amber); }
+  /* ---- MALT CHECKBOX DROPDOWN ---- */
+  .malt-dropdown { position: relative; }
+
+  .malt-trigger {
+    background: var(--foam);
+    border: 1px solid var(--cream-dark);
+    border-radius: 2px;
+    padding: 0.5rem 0.75rem;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.95rem;
+    color: var(--text);
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .malt-trigger:focus { outline: none; border-color: var(--amber); }
+  .malt-trigger.open { border-color: var(--amber); }
+
+  .malt-trigger .malt-arrow { font-size: 0.65rem; opacity: 0.5; transition: transform 0.2s; }
+  .malt-trigger.open .malt-arrow { transform: rotate(180deg); }
+
+  .malt-panel {
+    display: none;
+    position: absolute;
+    top: calc(100% + 3px);
+    left: 0; right: 0;
+    background: white;
+    border: 1px solid var(--amber);
+    border-radius: 2px;
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 50;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  .malt-panel.open { display: block; }
+
+  .malt-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.75rem;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.95rem;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .malt-option:hover { background: var(--cream); }
+
+  .malt-option input[type="checkbox"] {
+    accent-color: var(--amber);
+    width: 14px; height: 14px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .malt-other-input {
+    padding: 0.35rem 0.75rem 0.6rem 2.25rem;
+  }
+
+  .malt-other-input input {
+    background: var(--foam);
+    border: 1px solid var(--cream-dark);
+    border-radius: 2px;
+    padding: 0.35rem 0.6rem;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.9rem;
+    color: var(--text);
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .malt-other-input input:focus { border-color: var(--amber); }
+
+  /* ---- RECIPE CONTROLS ---- */
+  .recipe-controls {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--cream-dark);
+  }
+
+  .recipe-controls input[type="text"],
+  .recipe-controls select {
+    background: var(--foam);
+    border: 1px solid var(--cream-dark);
+    border-radius: 2px;
+    padding: 0.4rem 0.6rem;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.85rem;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .recipe-controls input[type="text"] { flex: 1; min-width: 110px; }
+  .recipe-controls input[type="text"]:focus,
+  .recipe-controls select:focus { border-color: var(--amber); }
+
+  .fave-filter-btn {
+    background: var(--foam);
+    border: 1px solid var(--cream-dark);
+    border-radius: 2px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.82rem;
+    color: var(--text-light);
+    padding: 0.4rem 0.6rem;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+    white-space: nowrap;
+  }
+
+  .fave-filter-btn.active { background: var(--amber); color: var(--bark); border-color: var(--amber); }
+
+  /* ---- CARD ACTION BUTTONS ---- */
+  .card-action-btn {
+    background: none;
+    border: 1px solid var(--cream-dark);
+    border-radius: 2px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    padding: 3px 8px;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .card-action-btn:hover { border-color: var(--amber); color: var(--amber-dark); }
+
+  .star-btn {
+    position: absolute;
+    top: 0.55rem;
+    right: 2.2rem;
+    background: none;
+    border: none;
+    font-size: 1.05rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    color: var(--text-light);
+    transition: transform 0.15s, color 0.15s;
+  }
+
+  .star-btn:hover { transform: scale(1.25); }
+  .star-btn.faved { color: var(--amber); }
+
+  /* ---- EXPAND/COLLAPSE ---- */
+  .card-summary { cursor: pointer; user-select: none; }
+  .card-summary h4 { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; }
+  .card-chevron { font-size: 0.65rem; color: var(--text-light); flex-shrink: 0; }
+  .card-body { display: none; }
+  .card-body.open { display: block; }
+
+  /* ---- ADVANCED / WATER PROFILE ---- */
+  .advanced-toggle {
+    background: none;
+    border: none;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    cursor: pointer;
+    padding: 0.25rem 0 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .advanced-toggle:hover { color: var(--amber-dark); }
+  .advanced-section { display: none; }
+  .advanced-section.open { display: block; }
+
+  /* ---- BREW TIMER ---- */
+  .timer-toggle-btn {
+    background: var(--foam);
+    border: 1px solid var(--cream-dark);
+    border-radius: 2px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    padding: 0.3rem 0.75rem;
+    cursor: pointer;
+    margin-bottom: 0.75rem;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .timer-toggle-btn:hover { border-color: var(--amber); color: var(--amber-dark); }
+
+  .brew-timer {
+    background: var(--bark);
+    color: var(--cream);
+    border-radius: 2px;
+    padding: 1rem 1.25rem 1.25rem;
+    margin-bottom: 1rem;
+    display: none;
+  }
+
+  .brew-timer.open { display: block; }
+
+  .timer-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cream-dark);
+    opacity: 0.65;
+    margin-bottom: 0.25rem;
+  }
+
+  .timer-display {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    text-align: center;
+    letter-spacing: 0.05em;
+    color: var(--amber-light);
+    line-height: 1;
+    margin: 0.5rem 0 0.75rem;
+  }
+
+  .timer-presets {
+    display: flex;
+    gap: 0.4rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 0.6rem;
+  }
+
+  .timer-btn {
+    background: var(--bark-mid);
+    border: 1px solid var(--bark-light);
+    color: var(--cream);
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.65rem;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .timer-btn:hover { background: var(--bark-light); }
+  .timer-btn.running { background: var(--amber); color: var(--bark); border-color: var(--amber); }
+
+  .timer-controls {
+    display: flex;
+    gap: 0.4rem;
+    justify-content: center;
+  }
+
+  .hop-oz-wrap {
+    display: none;
+    align-items: center;
+    gap: 0.3rem;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .hop-oz-wrap input {
+    width: 52px;
+    padding: 2px 6px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.85rem;
+    color: var(--text);
+    background: var(--cream);
+    border: 1px solid var(--cream-dark);
+    border-radius: 2px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .hop-oz-wrap input:focus { border-color: var(--amber); }
+
+  .hop-oz-wrap span {
+    font-size: 0.78rem;
+    color: var(--text-light);
+    white-space: nowrap;
+  }
 </style>
 </head>
 <body>
@@ -512,6 +1401,9 @@
     <li><a href="#guide">How to Brew</a></li>
     <li><a href="#menu">Beer Menu</a></li>
     <li><a href="#equipment">Equipment</a></li>
+    <li><a href="#recipes">My Recipes</a></li>
+    <li><a href="#counter">Brew Counter</a></li>
+    <li><a href="#finder">Find a Store</a></li>
     <li><a href="#qa">Ask a Question</a></li>
   </ul>
 </nav>
@@ -579,7 +1471,7 @@
 
     <div class="menu-grid">
 
-      <div class="beer-card">
+      <div class="beer-card" onclick="window.open('https://www.google.com/search?q=how+to+homebrew+American+Pale+Ale','_blank')" title="Search: how to homebrew American Pale Ale">
         <span class="beer-style-tag">American Ale</span>
         <h3>American Pale Ale</h3>
         <p class="beer-desc">Crisp, hoppy, and endlessly drinkable. The perfect first brew — forgiving, fast, and crowd-pleasing.</p>
@@ -593,9 +1485,10 @@
             Beginner
           </span>
         </div>
+        <p class="brew-search-hint">🔍 How to brew →</p>
       </div>
 
-      <div class="beer-card">
+      <div class="beer-card" onclick="window.open('https://www.google.com/search?q=how+to+homebrew+Dry+Irish+Stout','_blank')" title="Search: how to homebrew Dry Irish Stout">
         <span class="beer-style-tag">Irish Stout</span>
         <h3>Dry Irish Stout</h3>
         <p class="beer-desc">Dark, roasty, and silky smooth. Notes of coffee and dark chocolate with a creamy finish. Think Guinness, but yours.</p>
@@ -609,9 +1502,10 @@
             Beginner
           </span>
         </div>
+        <p class="brew-search-hint">🔍 How to brew →</p>
       </div>
 
-      <div class="beer-card">
+      <div class="beer-card" onclick="window.open('https://www.google.com/search?q=how+to+homebrew+Hefeweizen','_blank')" title="Search: how to homebrew Hefeweizen">
         <span class="beer-style-tag">German Wheat</span>
         <h3>Hefeweizen</h3>
         <p class="beer-desc">Cloudy, banana and clove aromas from classic German yeast. Light-bodied and refreshing — a summer staple.</p>
@@ -625,9 +1519,10 @@
             Beginner
           </span>
         </div>
+        <p class="brew-search-hint">🔍 How to brew →</p>
       </div>
 
-      <div class="beer-card">
+      <div class="beer-card" onclick="window.open('https://www.google.com/search?q=how+to+homebrew+New+England+IPA','_blank')" title="Search: how to homebrew New England IPA">
         <span class="beer-style-tag">India Pale Ale</span>
         <h3>New England IPA</h3>
         <p class="beer-desc">Hazy, juicy, and bursting with tropical fruit. Dry-hopped heavily for maximum aroma. Wildly popular for good reason.</p>
@@ -641,9 +1536,10 @@
             Intermediate
           </span>
         </div>
+        <p class="brew-search-hint">🔍 How to brew →</p>
       </div>
 
-      <div class="beer-card">
+      <div class="beer-card" onclick="window.open('https://www.google.com/search?q=how+to+homebrew+Belgian+Saison','_blank')" title="Search: how to homebrew Belgian Saison">
         <span class="beer-style-tag">Belgian Ale</span>
         <h3>Belgian Saison</h3>
         <p class="beer-desc">Spicy, earthy, and complex from wild-esque Belgian yeast. Dry and effervescent with a rustic farmhouse character.</p>
@@ -657,9 +1553,10 @@
             Intermediate
           </span>
         </div>
+        <p class="brew-search-hint">🔍 How to brew →</p>
       </div>
 
-      <div class="beer-card">
+      <div class="beer-card" onclick="window.open('https://www.google.com/search?q=how+to+homebrew+Russian+Imperial+Stout','_blank')" title="Search: how to homebrew Russian Imperial Stout">
         <span class="beer-style-tag">Imperial Stout</span>
         <h3>Russian Imperial Stout</h3>
         <p class="beer-desc">Big, bold, and complex. Rich chocolate, molasses, and dark fruit. Takes months to condition properly — worth every day.</p>
@@ -673,9 +1570,10 @@
             Advanced
           </span>
         </div>
+        <p class="brew-search-hint">🔍 How to brew →</p>
       </div>
 
-      <div class="beer-card">
+      <div class="beer-card" onclick="window.open('https://www.google.com/search?q=how+to+homebrew+Classic+Cream+Ale','_blank')" title="Search: how to homebrew Classic Cream Ale">
         <span class="beer-style-tag">American Lager</span>
         <h3>Classic Cream Ale</h3>
         <p class="beer-desc">Light, clean, and crushable. An easy-drinking warm-fermented lager hybrid — great for hot weather and beginners alike.</p>
@@ -689,9 +1587,10 @@
             Easy
           </span>
         </div>
+        <p class="brew-search-hint">🔍 How to brew →</p>
       </div>
 
-      <div class="beer-card">
+      <div class="beer-card" onclick="window.open('https://www.google.com/search?q=how+to+homebrew+Berliner+Weisse+Kettle+Sour','_blank')" title="Search: how to homebrew Kettle Sour Berliner Weisse">
         <span class="beer-style-tag">Sour Ale</span>
         <h3>Kettle Sour (Berliner Weisse)</h3>
         <p class="beer-desc">Tart, refreshing, and lightly funky. Lacto-ferment the wort before boiling for quick, controlled sourness. Perfect with fruit additions.</p>
@@ -705,6 +1604,7 @@
             Intermediate
           </span>
         </div>
+        <p class="brew-search-hint">🔍 How to brew →</p>
       </div>
 
     </div>
@@ -770,8 +1670,382 @@
   </div>
 </section>
 
+<!-- RECIPES -->
+<section id="recipes">
+  <div class="container">
+    <p class="section-label">Community Recipes</p>
+    <h2 class="section-title">My Craft Beer Recipes</h2>
+    <hr class="section-rule">
+    <p style="color:var(--text-mid);font-size:1rem;max-width:580px;margin-bottom:0;">Share your own homebrew recipes — save them here and build your personal collection.</p>
+
+    <div class="recipe-layout">
+
+      <!-- FORM -->
+      <div class="recipe-form-wrap">
+        <h3>Add a Recipe</h3>
+        <div class="field">
+          <label>Recipe Name</label>
+          <input type="text" id="r-name" placeholder="e.g. Brian's Summer Pale Ale" />
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Style</label>
+            <select id="r-style">
+              <option value="">Select style…</option>
+              <option>Pale Ale</option>
+              <option>IPA</option>
+              <option>Stout</option>
+              <option>Porter</option>
+              <option>Hefeweizen</option>
+              <option>Saison</option>
+              <option>Lager</option>
+              <option>Sour</option>
+              <option>Amber Ale</option>
+              <option>Brown Ale</option>
+              <option>Barleywine</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Difficulty</label>
+            <select id="r-diff">
+              <option value="Easy">Easy</option>
+              <option value="Beginner">Beginner</option>
+              <option value="Intermediate">Intermediate</option>
+              <option value="Advanced">Advanced</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Yeast</label>
+          <select id="r-yeast" onchange="toggleYeastOther(this)">
+            <option value="">Select yeast…</option>
+            <option>US-05 (American Ale)</option>
+            <option>WY1056 / WLP001 (American Ale)</option>
+            <option>S-04 (English Ale)</option>
+            <option>WY1968 / WLP002 (English Ale)</option>
+            <option>WB-06 (Hefeweizen)</option>
+            <option>WY3068 / WLP300 (Hefeweizen)</option>
+            <option>WY3724 / WLP565 (Belgian Saison)</option>
+            <option>WY1214 / WLP500 (Belgian Trappist)</option>
+            <option>W-34/70 (German Lager)</option>
+            <option>WY2124 / WLP830 (German Lager)</option>
+            <option>Nottingham (Dry Ale)</option>
+            <option>Kveik (Voss / Hornindal)</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field" id="r-yeast-other-wrap" style="display:none">
+          <label>Yeast (custom)</label>
+          <input type="text" id="r-yeast-other" placeholder="e.g. WLP644 Saccharomyces bruxellensis" />
+        </div>
+        <div class="field">
+          <label>Malts Used</label>
+          <div class="malt-dropdown" id="maltDropdown">
+            <button type="button" class="malt-trigger" id="maltTrigger" onclick="toggleMaltPanel()">
+              <span id="maltTriggerLabel">Select malts…</span>
+              <span class="malt-arrow">▼</span>
+            </button>
+            <div class="malt-panel" id="maltPanel">
+              <label class="malt-option"><input type="checkbox" value="Pale Malt (2-Row)" onchange="updateMaltLabel()"> Pale Malt (2-Row)</label>
+              <label class="malt-option"><input type="checkbox" value="Pilsner Malt" onchange="updateMaltLabel()"> Pilsner Malt</label>
+              <label class="malt-option"><input type="checkbox" value="Maris Otter" onchange="updateMaltLabel()"> Maris Otter</label>
+              <label class="malt-option"><input type="checkbox" value="Vienna Malt" onchange="updateMaltLabel()"> Vienna Malt</label>
+              <label class="malt-option"><input type="checkbox" value="Munich Malt" onchange="updateMaltLabel()"> Munich Malt</label>
+              <label class="malt-option"><input type="checkbox" value="Crystal 40L" onchange="updateMaltLabel()"> Crystal 40L</label>
+              <label class="malt-option"><input type="checkbox" value="Crystal 60L" onchange="updateMaltLabel()"> Crystal 60L</label>
+              <label class="malt-option"><input type="checkbox" value="Crystal 120L" onchange="updateMaltLabel()"> Crystal 120L</label>
+              <label class="malt-option"><input type="checkbox" value="Chocolate Malt" onchange="updateMaltLabel()"> Chocolate Malt</label>
+              <label class="malt-option"><input type="checkbox" value="Roasted Barley" onchange="updateMaltLabel()"> Roasted Barley</label>
+              <label class="malt-option"><input type="checkbox" value="Black Patent Malt" onchange="updateMaltLabel()"> Black Patent Malt</label>
+              <label class="malt-option"><input type="checkbox" value="Wheat Malt" onchange="updateMaltLabel()"> Wheat Malt</label>
+              <label class="malt-option"><input type="checkbox" value="Oats (Flaked)" onchange="updateMaltLabel()"> Oats (Flaked)</label>
+              <label class="malt-option"><input type="checkbox" value="Rye Malt" onchange="updateMaltLabel()"> Rye Malt</label>
+              <label class="malt-option" id="maltOtherCheck"><input type="checkbox" value="Other" onchange="toggleMaltOther(this); updateMaltLabel()"> Other</label>
+              <div class="malt-other-input" id="maltOtherWrap" style="display:none">
+                <input type="text" id="r-malt-other" placeholder="e.g. Smoked Malt, Honey Malt…" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Hops Used</label>
+          <div class="malt-dropdown" id="hopDropdown">
+            <button type="button" class="malt-trigger" id="hopTrigger" onclick="toggleHopPanel()">
+              <span id="hopTriggerLabel">Select hops…</span>
+              <span class="malt-arrow">▼</span>
+            </button>
+            <div class="malt-panel" id="hopPanel">
+              <label class="malt-option"><input type="checkbox" value="Cascade" onchange="toggleHopOz(this,'hop-oz-Cascade'); updateHopLabel()"> Cascade<span class="hop-oz-wrap" id="hop-oz-Cascade"><input type="number" min="0" step="0.25" placeholder="0" onclick="event.stopPropagation()" oninput="updateHopLabel()"> <span>oz</span></span></label>
+              <label class="malt-option"><input type="checkbox" value="Centennial" onchange="toggleHopOz(this,'hop-oz-Centennial'); updateHopLabel()"> Centennial<span class="hop-oz-wrap" id="hop-oz-Centennial"><input type="number" min="0" step="0.25" placeholder="0" onclick="event.stopPropagation()" oninput="updateHopLabel()"> <span>oz</span></span></label>
+              <label class="malt-option"><input type="checkbox" value="Chinook" onchange="toggleHopOz(this,'hop-oz-Chinook'); updateHopLabel()"> Chinook<span class="hop-oz-wrap" id="hop-oz-Chinook"><input type="number" min="0" step="0.25" placeholder="0" onclick="event.stopPropagation()" oninput="updateHopLabel()"> <span>oz</span></span></label>
+              <label class="malt-option"><input type="checkbox" value="Citra" onchange="toggleHopOz(this,'hop-oz-Citra'); updateHopLabel()"> Citra<span class="hop-oz-wrap" id="hop-oz-Citra"><input type="number" min="0" step="0.25" placeholder="0" onclick="event.stopPropagation()" oninput="updateHopLabel()"> <span>oz</span></span></label>
+              <label class="malt-option"><input type="checkbox" value="Columbus (CTZ)" onchange="toggleHopOz(this,'hop-oz-Columbus'); updateHopLabel()"> Columbus (CTZ)<span class="hop-oz-wrap" id="hop-oz-Columbus"><input type="number" min="0" step="0.25" placeholder="0" onclick="event.stopPropagation()" oninput="updateHopLabel()"> <span>oz</span></span></label>
+              <label class="malt-option"><input type="checkbox" value="Mosaic" onchange="toggleHopOz(this,'hop-oz-Mosaic'); updateHopLabel()"> Mosaic<span class="hop-oz-wrap" id="hop-oz-Mosaic"><input type="number" min="0" step="0.25" placeholder="0" onclick="event.stopPropagation()" oninput="updateHopLabel()"> <span>oz</span></span></label>
+              <label class="malt-option"><input type="checkbox" value="Simcoe" onchange="toggleHopOz(this,'hop-oz-Simcoe'); updateHopLabel()"> Simcoe<span class="hop-oz-wrap" id="hop-oz-Simcoe"><input type="number" min="0" step="0.25" placeholder="0" onclick="event.stopPropagation()" oninput="updateHopLabel()"> <span>oz</span></span></label>
+              <label class="malt-option"><input type="checkbox" value="Amarillo" onchange="toggleHopOz(this,'hop-oz-Amarillo'); updateHopLabel()"> Amarillo<span class="hop-oz-wrap" id="hop-oz-Amarillo"><input type="number" min="0" step="0.25" placeholder="0" onclick="event.stopPropagation()" oninput="updateHopLabel()"> <span>oz</span></span></label>
+              <label class="malt-option"><input type="checkbox" value="Hallertau" onchange="toggleHopOz(this,'hop-oz-Hallertau'); updateHopLabel()"> Hallertau<span class="hop-oz-wrap" id="hop-oz-Hallertau"><input type="number" min="0" step="0.25" placeholder="0" onclick="event.stopPropagation()" oninput="updateHopLabel()"> <span>oz</span></span></label>
+              <label class="malt-option"><input type="checkbox" value="Saaz" onchange="toggleHopOz(this,'hop-oz-Saaz'); updateHopLabel()"> Saaz<span class="hop-oz-wrap" id="hop-oz-Saaz"><input type="number" min="0" step="0.25" placeholder="0" onclick="event.stopPropagation()" oninput="updateHopLabel()"> <span>oz</span></span></label>
+              <label class="malt-option"><input type="checkbox" value="Fuggle" onchange="toggleHopOz(this,'hop-oz-Fuggle'); updateHopLabel()"> Fuggle<span class="hop-oz-wrap" id="hop-oz-Fuggle"><input type="number" min="0" step="0.25" placeholder="0" onclick="event.stopPropagation()" oninput="updateHopLabel()"> <span>oz</span></span></label>
+              <label class="malt-option"><input type="checkbox" value="East Kent Goldings" onchange="toggleHopOz(this,'hop-oz-EKG'); updateHopLabel()"> East Kent Goldings<span class="hop-oz-wrap" id="hop-oz-EKG"><input type="number" min="0" step="0.25" placeholder="0" onclick="event.stopPropagation()" oninput="updateHopLabel()"> <span>oz</span></span></label>
+              <label class="malt-option"><input type="checkbox" value="Magnum" onchange="toggleHopOz(this,'hop-oz-Magnum'); updateHopLabel()"> Magnum<span class="hop-oz-wrap" id="hop-oz-Magnum"><input type="number" min="0" step="0.25" placeholder="0" onclick="event.stopPropagation()" oninput="updateHopLabel()"> <span>oz</span></span></label>
+              <label class="malt-option"><input type="checkbox" value="Galaxy" onchange="toggleHopOz(this,'hop-oz-Galaxy'); updateHopLabel()"> Galaxy<span class="hop-oz-wrap" id="hop-oz-Galaxy"><input type="number" min="0" step="0.25" placeholder="0" onclick="event.stopPropagation()" oninput="updateHopLabel()"> <span>oz</span></span></label>
+              <label class="malt-option"><input type="checkbox" value="Idaho 7" onchange="toggleHopOz(this,'hop-oz-Idaho7'); updateHopLabel()"> Idaho 7<span class="hop-oz-wrap" id="hop-oz-Idaho7"><input type="number" min="0" step="0.25" placeholder="0" onclick="event.stopPropagation()" oninput="updateHopLabel()"> <span>oz</span></span></label>
+              <label class="malt-option"><input type="checkbox" value="Other" onchange="toggleHopOther(this); toggleHopOz(this,'hop-oz-Other'); updateHopLabel()"> Other<span class="hop-oz-wrap" id="hop-oz-Other"><input type="number" min="0" step="0.25" placeholder="0" onclick="event.stopPropagation()" oninput="updateHopLabel()"> <span>oz</span></span></label>
+              <div class="malt-other-input" id="hopOtherWrap" style="display:none">
+                <input type="text" id="r-hop-other" placeholder="e.g. Strata, Nectaron…" oninput="updateHopLabel()" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Est. ABV %</label>
+            <input type="text" id="r-abv" placeholder="e.g. 5.5%" />
+          </div>
+          <div class="field">
+            <label>IBU</label>
+            <input type="text" id="r-ibu" placeholder="e.g. 40" />
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Batch Size (gal)</label>
+            <input type="number" id="r-batch" placeholder="e.g. 5" min="0" step="0.5" />
+          </div>
+          <div class="field">
+            <label>Grain Bill (lbs)</label>
+            <input type="number" id="r-grain" placeholder="e.g. 12" min="0" step="0.25" />
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>OG (Original Gravity)</label>
+            <input type="text" id="r-og" placeholder="e.g. 1.055" />
+          </div>
+          <div class="field">
+            <label>FG (Final Gravity)</label>
+            <input type="text" id="r-fg" placeholder="e.g. 1.010" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Brew Date</label>
+          <input type="date" id="r-brewdate" />
+        </div>
+        <div class="field">
+          <label>Ingredients</label>
+          <textarea id="r-ingredients" placeholder="e.g. 10 lb pale malt, 1 lb crystal 60, 2 oz Cascade hops, US-05 yeast…"></textarea>
+        </div>
+        <div class="field">
+          <label>Brew Notes & Method</label>
+          <textarea id="r-notes" placeholder="Mash at 152°F for 60 min. Boil 60 min. Ferment at 68°F…"></textarea>
+        </div>
+        <button type="button" class="advanced-toggle" onclick="toggleAdvanced()">
+          <span id="advancedArrow">▶</span> Water Profile (Advanced)
+        </button>
+        <div class="advanced-section" id="advancedSection">
+          <div class="field-row">
+            <div class="field">
+              <label>Mash pH</label>
+              <input type="number" id="r-ph" placeholder="5.2–5.4" min="4" max="7" step="0.1" />
+            </div>
+            <div class="field">
+              <label>Calcium (ppm)</label>
+              <input type="number" id="r-ca" placeholder="50–150" min="0" />
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Magnesium (ppm)</label>
+              <input type="number" id="r-mg" placeholder="0–30" min="0" />
+            </div>
+            <div class="field">
+              <label>Sodium (ppm)</label>
+              <input type="number" id="r-na" placeholder="0–150" min="0" />
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Sulfate SO₄ (ppm)</label>
+              <input type="number" id="r-so4" placeholder="0–300" min="0" />
+            </div>
+            <div class="field">
+              <label>Chloride Cl (ppm)</label>
+              <input type="number" id="r-cl" placeholder="0–200" min="0" />
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Photo of Your Beer</label>
+          <div class="img-upload-zone" id="uploadZone" onclick="document.getElementById('r-image').click()">
+            <input type="file" id="r-image" accept="image/*" style="display:none" onchange="previewImage(this)" />
+            <div id="uploadPlaceholder">
+              <div class="upload-icon">📷</div>
+              <div class="upload-hint">Click to upload a photo of your brew</div>
+              <div class="upload-sub">JPG, PNG, WEBP — any size</div>
+            </div>
+            <img id="imagePreview" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:2px;" />
+          </div>
+          <button type="button" class="clear-img-btn" id="clearImgBtn" onclick="clearImage()" style="display:none">✕ Remove photo</button>
+        </div>
+        <button class="submit-recipe" onclick="saveRecipe()">Save Recipe</button>
+      </div>
+
+      <!-- SAVED RECIPES LIST -->
+      <div>
+        <button class="timer-toggle-btn" onclick="toggleTimer()">⏱ Brew Timer</button>
+        <div class="brew-timer" id="brewTimer">
+          <div class="timer-label">Brew Timer</div>
+          <div class="timer-display" id="timerDisplay">60:00</div>
+          <div class="timer-presets">
+            <button class="timer-btn" onclick="setTimerPreset(60)">Mash 60m</button>
+            <button class="timer-btn" onclick="setTimerPreset(90)">Boil 90m</button>
+            <button class="timer-btn" onclick="setTimerPreset(15)">Hop 15m</button>
+            <button class="timer-btn" onclick="setTimerPreset(5)">Hop 5m</button>
+          </div>
+          <div class="timer-controls">
+            <button class="timer-btn" id="timerStartBtn" onclick="startTimer()">Start</button>
+            <button class="timer-btn" onclick="pauseTimer()">Pause</button>
+            <button class="timer-btn" onclick="resetTimerFn()">Reset</button>
+          </div>
+        </div>
+        <div class="recipe-controls">
+          <input type="text" placeholder="Search recipes…" oninput="recipeFilter.search=this.value; renderRecipes()" />
+          <select onchange="recipeFilter.style=this.value; renderRecipes()">
+            <option value="">All styles</option>
+            <option>Pale Ale</option><option>IPA</option><option>Stout</option>
+            <option>Porter</option><option>Hefeweizen</option><option>Saison</option>
+            <option>Lager</option><option>Sour</option><option>Amber Ale</option>
+            <option>Brown Ale</option><option>Barleywine</option><option>Other</option>
+          </select>
+          <select onchange="recipeFilter.difficulty=this.value; renderRecipes()">
+            <option value="">All levels</option>
+            <option>Easy</option><option>Beginner</option>
+            <option>Intermediate</option><option>Advanced</option>
+          </select>
+          <select onchange="recipeFilter.sort=this.value; renderRecipes()">
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="az">A → Z</option>
+            <option value="za">Z → A</option>
+            <option value="style">By style</option>
+          </select>
+          <button class="fave-filter-btn" id="faveFilterBtn" onclick="recipeFilter.favOnly=!recipeFilter.favOnly; this.classList.toggle('active'); renderRecipes()">★ Faves</button>
+        </div>
+        <div class="recipes-list" id="recipesList"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+
+<section id="gallery">
+  <div class="container">
+    <p class="section-label">The Craft</p>
+    <h2 class="section-title">A Pint Well Earned</h2>
+    <hr class="section-rule">
+    <div class="gallery-grid">
+      <div>
+        <img class="gallery-img"
+          src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80"
+          alt="Golden pint of ale" />
+        <p class="gallery-caption">A perfect golden ale, fresh from the tap</p>
+      </div>
+      <div>
+        <img class="gallery-img"
+          src="https://images.unsplash.com/photo-1436076863939-06870fe779c2?w=600&q=80"
+          alt="Dark stout pint" />
+        <p class="gallery-caption">Rich, roasty stout — worth every week of waiting</p>
+      </div>
+      <div>
+        <img class="gallery-img"
+          src="https://images.unsplash.com/photo-1608270586620-248524c67de9?w=600&q=80"
+          alt="Glasses of craft beer" />
+        <p class="gallery-caption">The lineup — sample your whole batch side by side</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BREW COUNTER -->
+<section id="counter">
+  <div class="container">
+    <p class="section-label">Your Brewing Journey</p>
+    <h2 class="section-title">Batches Brewed</h2>
+    <hr class="section-rule">
+    <p style="color: var(--cream-dark); opacity: 0.75; font-size: 1rem; max-width: 480px; margin-bottom: 0; font-style: italic;">Every great brewer started at zero. Track your batches — the number tells the story.</p>
+
+    <div class="counter-wrap">
+      <div style="display:flex; align-items:center; gap: 2rem;">
+        <div style="text-align:center;">
+          <div class="counter-number" id="counterNum">0</div>
+          <div class="counter-label">batches brewed</div>
+        </div>
+      </div>
+
+      <div class="pint-display" id="pintDisplay"></div>
+
+      <div class="counter-controls">
+        <button class="counter-btn" onclick="changeBatch(-1)">−</button>
+        <button class="counter-btn add" onclick="changeBatch(1)">+</button>
+      </div>
+
+      <div class="counter-stats">
+        <div class="cstat">
+          <div class="cstat-val" id="statGallons">0</div>
+          <div class="cstat-lbl">est. gallons</div>
+        </div>
+        <div class="cstat">
+          <div class="cstat-val" id="statBottles">0</div>
+          <div class="cstat-lbl">est. bottles</div>
+        </div>
+        <div class="cstat">
+          <div class="cstat-val" id="statLevel">—</div>
+          <div class="cstat-lbl">brewer level</div>
+        </div>
+      </div>
+
+      <button class="counter-reset" onclick="resetCounter()">Reset counter</button>
+    </div>
+  </div>
+</section>
+
+
+<!-- STORE FINDER -->
+<section id="finder">
+  <div class="container">
+    <p class="section-label">Local Shops</p>
+    <h2 class="section-title">Find a Homebrew Store Near You</h2>
+    <hr class="section-rule">
+    <p style="color:var(--cream-dark);opacity:0.75;font-size:1rem;max-width:560px;margin-bottom:0;font-style:italic;">Click the button below to use your location and find homebrew supply stores nearby.</p>
+
+    <div class="finder-layout">
+
+      <div class="finder-controls">
+        <div class="radius-row">
+          <label>Search radius</label>
+          <input type="range" id="radiusSlider" min="10" max="100" value="50" step="5" oninput="document.getElementById('radiusVal').textContent = this.value + ' mi'" />
+          <span class="radius-val" id="radiusVal">50 mi</span>
+        </div>
+
+        <button class="locate-btn" id="locateBtn" onclick="findStores()">
+          <span id="locateBtnIcon">📍</span> Use My Location
+        </button>
+
+        <div class="finder-status" id="finderStatus">Your location is never stored or shared.</div>
+      </div>
+
+      <div id="storeResults">
+        <div class="finder-empty">Hit "Use My Location" to find homebrew stores near you.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 <!-- Q&A -->
-<section id="qa">
+
   <div class="container">
     <p class="section-label">Ask Anything</p>
     <h2 class="section-title">Brewing Q&A</h2>
@@ -805,6 +2079,523 @@
 
 <script>
   const messages = [];
+
+  // ---- BREW COUNTER ----
+  let batches = parseInt(localStorage.getItem('mashTunBatches') || '0');
+
+  function getLevel(n) {
+    if (n === 0) return '—';
+    if (n < 3) return 'Novice';
+    if (n < 7) return 'Apprentice';
+    if (n < 15) return 'Brewer';
+    if (n < 30) return 'Craftsman';
+    return 'Master';
+  }
+
+  function renderCounter() {
+    document.getElementById('counterNum').textContent = batches;
+    document.getElementById('statGallons').textContent = (batches * 5).toLocaleString();
+    document.getElementById('statBottles').textContent = (batches * 48).toLocaleString();
+    document.getElementById('statLevel').textContent = getLevel(batches);
+
+    const display = document.getElementById('pintDisplay');
+    display.innerHTML = '';
+    const show = Math.min(batches, 20);
+    for (let i = 0; i < show; i++) {
+      const span = document.createElement('span');
+      span.className = 'pint-icon';
+      span.textContent = '🍺';
+      span.style.animationDelay = '0s';
+      display.appendChild(span);
+    }
+    if (batches > 20) {
+      const more = document.createElement('span');
+      more.style.cssText = 'color:var(--cream);font-size:1rem;opacity:0.7;font-style:italic;align-self:center;';
+      more.textContent = '+' + (batches - 20) + ' more';
+      display.appendChild(more);
+    }
+  }
+
+  function changeBatch(delta) {
+    batches = Math.max(0, batches + delta);
+    localStorage.setItem('mashTunBatches', batches);
+    renderCounter();
+  }
+
+  function resetCounter() {
+    if (confirm('Reset your batch count to zero?')) {
+      batches = 0;
+      localStorage.setItem('mashTunBatches', 0);
+      renderCounter();
+    }
+  }
+
+  renderCounter();
+
+  // ---- RECIPES ----
+  let pendingImageBase64 = null;
+  const recipeFilter = { search: '', style: '', difficulty: '', favOnly: false, sort: 'newest' };
+  const expandedCards = new Set();
+
+  function previewImage(input) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      pendingImageBase64 = e.target.result;
+      document.getElementById('uploadPlaceholder').style.display = 'none';
+      const preview = document.getElementById('imagePreview');
+      preview.src = pendingImageBase64;
+      preview.style.display = 'block';
+      document.getElementById('clearImgBtn').style.display = 'inline-block';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+
+  function clearImage() {
+    pendingImageBase64 = null;
+    document.getElementById('imagePreview').style.display = 'none';
+    document.getElementById('imagePreview').src = '';
+    document.getElementById('uploadPlaceholder').style.display = 'flex';
+    document.getElementById('clearImgBtn').style.display = 'none';
+    document.getElementById('r-image').value = '';
+  }
+
+  function loadRecipes() {
+    return JSON.parse(localStorage.getItem('mashTunRecipes') || '[]');
+  }
+
+  function toggleYeastOther(sel) {
+    document.getElementById('r-yeast-other-wrap').style.display = sel.value === 'Other' ? '' : 'none';
+  }
+
+  // ---- MALT DROPDOWN ----
+  function toggleMaltPanel() {
+    const trigger = document.getElementById('maltTrigger');
+    const panel = document.getElementById('maltPanel');
+    trigger.classList.toggle('open');
+    panel.classList.toggle('open');
+  }
+
+  document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('maltDropdown');
+    if (dropdown && !dropdown.contains(e.target)) {
+      document.getElementById('maltTrigger').classList.remove('open');
+      document.getElementById('maltPanel').classList.remove('open');
+    }
+  });
+
+  function updateMaltLabel() {
+    const checked = [...document.querySelectorAll('#maltPanel input[type="checkbox"]:checked')]
+      .map(cb => cb.value === 'Other' ? (document.getElementById('r-malt-other').value.trim() || 'Other') : cb.value);
+    document.getElementById('maltTriggerLabel').textContent = checked.length ? checked.join(', ') : 'Select malts…';
+  }
+
+  function toggleMaltOther(cb) {
+    document.getElementById('maltOtherWrap').style.display = cb.checked ? '' : 'none';
+    if (!cb.checked) document.getElementById('r-malt-other').value = '';
+  }
+
+  function getSelectedMalts() {
+    return [...document.querySelectorAll('#maltPanel input[type="checkbox"]:checked')]
+      .map(cb => cb.value === 'Other' ? document.getElementById('r-malt-other').value.trim() : cb.value)
+      .filter(Boolean);
+  }
+
+  function resetMalts() {
+    document.querySelectorAll('#maltPanel input[type="checkbox"]').forEach(cb => cb.checked = false);
+    document.getElementById('r-malt-other').value = '';
+    document.getElementById('maltOtherWrap').style.display = 'none';
+    document.getElementById('maltTriggerLabel').textContent = 'Select malts…';
+  }
+
+  // ---- HOP DROPDOWN ----
+  function toggleHopPanel() {
+    const trigger = document.getElementById('hopTrigger');
+    const panel = document.getElementById('hopPanel');
+    trigger.classList.toggle('open');
+    panel.classList.toggle('open');
+  }
+
+  document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('hopDropdown');
+    if (dropdown && !dropdown.contains(e.target)) {
+      document.getElementById('hopTrigger').classList.remove('open');
+      document.getElementById('hopPanel').classList.remove('open');
+    }
+  });
+
+  function toggleHopOz(cb, ozId) {
+    const wrap = document.getElementById(ozId);
+    if (!wrap) return;
+    wrap.style.display = cb.checked ? 'flex' : 'none';
+    if (!cb.checked) wrap.querySelector('input').value = '';
+  }
+
+  function updateHopLabel() {
+    const checked = [...document.querySelectorAll('#hopPanel input[type="checkbox"]:checked')];
+    const parts = checked.map(cb => {
+      const name = cb.value === 'Other' ? (document.getElementById('r-hop-other').value.trim() || 'Other') : cb.value;
+      const ozWrap = cb.closest('label').querySelector('.hop-oz-wrap input');
+      const oz = ozWrap && ozWrap.value ? `${ozWrap.value} oz` : '';
+      return oz ? `${name} (${oz})` : name;
+    });
+    document.getElementById('hopTriggerLabel').textContent = parts.length ? parts.join(', ') : 'Select hops…';
+  }
+
+  function toggleHopOther(cb) {
+    document.getElementById('hopOtherWrap').style.display = cb.checked ? '' : 'none';
+    if (!cb.checked) document.getElementById('r-hop-other').value = '';
+  }
+
+  function getSelectedHops() {
+    return [...document.querySelectorAll('#hopPanel input[type="checkbox"]:checked')]
+      .map(cb => {
+        const name = cb.value === 'Other' ? document.getElementById('r-hop-other').value.trim() : cb.value;
+        const ozInput = cb.closest('label').querySelector('.hop-oz-wrap input');
+        const oz = ozInput && ozInput.value ? ozInput.value : '';
+        return name ? { name, oz } : null;
+      })
+      .filter(Boolean);
+  }
+
+  function resetHops() {
+    document.querySelectorAll('#hopPanel input[type="checkbox"]').forEach(cb => cb.checked = false);
+    document.querySelectorAll('#hopPanel .hop-oz-wrap').forEach(w => { w.style.display = 'none'; w.querySelector('input').value = ''; });
+    document.getElementById('r-hop-other').value = '';
+    document.getElementById('hopOtherWrap').style.display = 'none';
+    document.getElementById('hopTriggerLabel').textContent = 'Select hops…';
+  }
+
+  function saveRecipesToStorage(recipes) {
+    localStorage.setItem('mashTunRecipes', JSON.stringify(recipes));
+  }
+
+  function renderRecipes() {
+    const list = document.getElementById('recipesList');
+    let all = loadRecipes().map((r, i) => ({ ...r, _idx: i }));
+
+    if (recipeFilter.search) {
+      const s = recipeFilter.search.toLowerCase();
+      all = all.filter(r => r.name.toLowerCase().includes(s) || (r.style || '').toLowerCase().includes(s));
+    }
+    if (recipeFilter.style) all = all.filter(r => r.style === recipeFilter.style);
+    if (recipeFilter.difficulty) all = all.filter(r => r.difficulty === recipeFilter.difficulty);
+    if (recipeFilter.favOnly) all = all.filter(r => r.fav);
+
+    if (recipeFilter.sort === 'az') all.sort((a, b) => a.name.localeCompare(b.name));
+    else if (recipeFilter.sort === 'za') all.sort((a, b) => b.name.localeCompare(a.name));
+    else if (recipeFilter.sort === 'style') all.sort((a, b) => (a.style || '').localeCompare(b.style || ''));
+    else if (recipeFilter.sort === 'oldest') all.reverse();
+
+    if (all.length === 0) {
+      list.innerHTML = '<div class="recipes-empty">No recipes match your filters.</div>';
+      return;
+    }
+
+    const lbl = s => `<strong style="font-style:normal;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-light);">${s}</strong>`;
+
+    list.innerHTML = all.map(r => {
+      const idx = r._idx;
+      const open = expandedCards.has(idx);
+      const actualAbv = (r.og && r.fg)
+        ? ((parseFloat(r.og) - parseFloat(r.fg)) * 131.25).toFixed(1) + '%'
+        : '';
+      const hasWater = r.water && Object.values(r.water).some(Boolean);
+
+      return `
+      <div class="recipe-card-saved" id="rc-${idx}">
+        <button class="recipe-delete-btn" onclick="deleteRecipe(${idx})" title="Delete recipe">✕</button>
+        <button class="star-btn ${r.fav ? 'faved' : ''}" onclick="toggleFav(${idx}); event.stopPropagation()" title="${r.fav ? 'Unfavourite' : 'Favourite'}">${r.fav ? '★' : '☆'}</button>
+        ${r.image ? `<img class="recipe-photo" src="${r.image}" alt="Photo of ${r.name}" />` : ''}
+        <div class="card-summary" onclick="toggleCard(${idx})">
+          <h4>${r.name} <span class="card-chevron">${open ? '▲' : '▼'}</span></h4>
+          <div class="recipe-tags">
+            ${r.style ? `<span class="rtag">${r.style}</span>` : ''}
+            ${r.difficulty ? `<span class="rtag">${r.difficulty}</span>` : ''}
+            ${r.yeast ? `<span class="rtag">🍺 ${r.yeast}</span>` : ''}
+            ${r.malts && r.malts.length ? r.malts.map(m => `<span class="rtag">${m}</span>`).join('') : ''}
+            ${r.hops && r.hops.length ? r.hops.map(h => `<span class="rtag">${h.name}${h.oz ? ' ' + h.oz + ' oz' : ''}</span>`).join('') : ''}
+            ${r.abv ? `<span class="rtag">ABV ${r.abv}</span>` : ''}
+            ${r.ibu ? `<span class="rtag">IBU ${r.ibu}</span>` : ''}
+          </div>
+        </div>
+        <div class="card-body ${open ? 'open' : ''}">
+          ${(r.batch || r.grain || r.og || r.fg) ? `
+          <div class="recipe-notes">${lbl('Fermentation')}<br>
+            ${r.batch ? `Batch: <strong>${r.batch} gal</strong>` : ''}
+            ${r.grain ? ` &nbsp;·&nbsp; Grain: <strong>${r.grain} lbs</strong>` : ''}
+            ${r.og ? ` &nbsp;·&nbsp; OG: <strong>${r.og}</strong>` : ''}
+            ${r.fg ? ` &nbsp;·&nbsp; FG: <strong>${r.fg}</strong>` : ''}
+            ${actualAbv ? ` &nbsp;·&nbsp; Actual ABV: <strong>${actualAbv}</strong>` : ''}
+          </div>` : ''}
+          ${r.brewDate ? `<div class="recipe-notes">${lbl('Brew Date')}<br>${r.brewDate}</div>` : ''}
+          ${r.ingredients ? `<div class="recipe-notes">${lbl('Ingredients')}<br>${r.ingredients}</div>` : ''}
+          ${r.notes ? `<div class="recipe-notes">${lbl('Brew Notes')}<br>${r.notes}</div>` : ''}
+          ${hasWater ? `<div class="recipe-notes">${lbl('Water Profile')}<br>
+            ${r.water.ph ? `pH <strong>${r.water.ph}</strong>` : ''}
+            ${r.water.ca ? ` &nbsp;·&nbsp; Ca <strong>${r.water.ca}</strong>ppm` : ''}
+            ${r.water.mg ? ` &nbsp;·&nbsp; Mg <strong>${r.water.mg}</strong>ppm` : ''}
+            ${r.water.na ? ` &nbsp;·&nbsp; Na <strong>${r.water.na}</strong>ppm` : ''}
+            ${r.water.so4 ? ` &nbsp;·&nbsp; SO₄ <strong>${r.water.so4}</strong>ppm` : ''}
+            ${r.water.cl ? ` &nbsp;·&nbsp; Cl <strong>${r.water.cl}</strong>ppm` : ''}
+          </div>` : ''}
+          <div class="recipe-actions" style="margin-top:0.75rem;">
+            <button class="card-action-btn" onclick="duplicateRecipe(${idx})">Duplicate</button>
+            <button class="card-action-btn" onclick="exportRecipe(${idx})">Export .txt</button>
+            <button class="card-action-btn" onclick="shareRecipe(${idx})">Share Link</button>
+            <span style="font-size:0.8rem;color:var(--text-light);font-style:italic;margin-left:auto;">${r.date}</span>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function saveRecipe() {
+    const name = document.getElementById('r-name').value.trim();
+    if (!name) { alert('Please give your recipe a name!'); return; }
+    const yeastSel = document.getElementById('r-yeast').value;
+    const yeast = yeastSel === 'Other' ? document.getElementById('r-yeast-other').value.trim() : yeastSel;
+    const water = {
+      ph: document.getElementById('r-ph').value,
+      ca: document.getElementById('r-ca').value,
+      mg: document.getElementById('r-mg').value,
+      na: document.getElementById('r-na').value,
+      so4: document.getElementById('r-so4').value,
+      cl: document.getElementById('r-cl').value,
+    };
+    const recipe = {
+      name,
+      style: document.getElementById('r-style').value,
+      difficulty: document.getElementById('r-diff').value,
+      yeast,
+      malts: getSelectedMalts(),
+      hops: getSelectedHops(),
+      abv: document.getElementById('r-abv').value.trim(),
+      ibu: document.getElementById('r-ibu').value.trim(),
+      batch: document.getElementById('r-batch').value,
+      grain: document.getElementById('r-grain').value,
+      og: document.getElementById('r-og').value.trim(),
+      fg: document.getElementById('r-fg').value.trim(),
+      brewDate: document.getElementById('r-brewdate').value,
+      water,
+      ingredients: document.getElementById('r-ingredients').value.trim(),
+      notes: document.getElementById('r-notes').value.trim(),
+      image: pendingImageBase64,
+      date: new Date().toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' })
+    };
+    const recipes = loadRecipes();
+    recipes.unshift(recipe);
+    saveRecipesToStorage(recipes);
+    ['r-name','r-abv','r-ibu','r-batch','r-grain','r-og','r-fg','r-brewdate',
+     'r-ingredients','r-notes','r-yeast-other','r-ph','r-ca','r-mg','r-na','r-so4','r-cl']
+      .forEach(id => document.getElementById(id).value = '');
+    document.getElementById('r-style').value = '';
+    document.getElementById('r-yeast').value = '';
+    document.getElementById('r-yeast-other-wrap').style.display = 'none';
+    resetMalts();
+    resetHops();
+    clearImage();
+    renderRecipes();
+  }
+
+  function deleteRecipe(i) {
+    if (!confirm('Delete this recipe?')) return;
+    const recipes = loadRecipes();
+    recipes.splice(i, 1);
+    saveRecipesToStorage(recipes);
+    renderRecipes();
+  }
+
+  renderRecipes();
+
+  // ---- RECIPE CARD INTERACTIONS ----
+  function toggleCard(idx) {
+    if (expandedCards.has(idx)) expandedCards.delete(idx);
+    else expandedCards.add(idx);
+    renderRecipes();
+  }
+
+  function toggleFav(idx) {
+    const recipes = loadRecipes();
+    recipes[idx].fav = !recipes[idx].fav;
+    saveRecipesToStorage(recipes);
+    renderRecipes();
+  }
+
+  function duplicateRecipe(idx) {
+    const recipes = loadRecipes();
+    const clone = { ...recipes[idx], name: recipes[idx].name + ' (copy)', fav: false,
+      date: new Date().toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }) };
+    recipes.unshift(clone);
+    saveRecipesToStorage(recipes);
+    renderRecipes();
+  }
+
+  function exportRecipe(idx) {
+    const r = loadRecipes()[idx];
+    const actualAbv = (r.og && r.fg) ? ((parseFloat(r.og) - parseFloat(r.fg)) * 131.25).toFixed(1) + '%' : '';
+    const lines = [
+      'THE MASH TUN — RECIPE EXPORT',
+      '================================',
+      `Name:        ${r.name}`,
+      `Style:       ${r.style || '—'}`,
+      `Difficulty:  ${r.difficulty || '—'}`,
+      `Saved:       ${r.date}`,
+      r.brewDate ? `Brew Date:   ${r.brewDate}` : '',
+      '',
+      '--- STATS ---',
+      r.abv       ? `Est. ABV:    ${r.abv}` : '',
+      actualAbv   ? `Actual ABV:  ${actualAbv}` : '',
+      r.ibu       ? `IBU:         ${r.ibu}` : '',
+      r.og        ? `OG:          ${r.og}` : '',
+      r.fg        ? `FG:          ${r.fg}` : '',
+      r.batch     ? `Batch Size:  ${r.batch} gal` : '',
+      r.grain     ? `Grain Bill:  ${r.grain} lbs` : '',
+      '',
+      '--- YEAST ---',
+      r.yeast || '—',
+      '',
+      r.malts && r.malts.length ? `--- MALTS ---\n${r.malts.join('\n')}` : '',
+      r.hops && r.hops.length   ? `--- HOPS ---\n${r.hops.map(h => `${h.name}${h.oz ? ' — ' + h.oz + ' oz' : ''}`).join('\n')}` : '',
+      r.ingredients ? `--- INGREDIENTS ---\n${r.ingredients}` : '',
+      r.notes       ? `--- BREW NOTES ---\n${r.notes}` : '',
+      (() => {
+        if (!r.water || !Object.values(r.water).some(Boolean)) return '';
+        const w = r.water;
+        return `--- WATER PROFILE ---\n${[
+          w.ph  ? `pH ${w.ph}`      : '',
+          w.ca  ? `Ca ${w.ca}ppm`   : '',
+          w.mg  ? `Mg ${w.mg}ppm`   : '',
+          w.na  ? `Na ${w.na}ppm`   : '',
+          w.so4 ? `SO4 ${w.so4}ppm` : '',
+          w.cl  ? `Cl ${w.cl}ppm`   : '',
+        ].filter(Boolean).join('  ·  ')}`;
+      })(),
+    ].filter(l => l !== '').join('\n');
+
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([lines], { type: 'text/plain' }));
+    a.download = `${r.name.replace(/[^a-z0-9]/gi, '_')}_recipe.txt`;
+    a.click();
+  }
+
+  function shareRecipe(idx) {
+    const r = loadRecipes()[idx];
+    const { image, ...data } = r;
+    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+    const url = `${location.origin}${location.pathname}#recipe=${encoded}`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(() => alert('Share link copied to clipboard!'));
+    } else {
+      prompt('Copy this share link:', url);
+    }
+  }
+
+  function checkShareLink() {
+    if (!location.hash.startsWith('#recipe=')) return;
+    try {
+      const data = JSON.parse(decodeURIComponent(escape(atob(location.hash.slice(8)))));
+      document.getElementById('r-name').value = data.name || '';
+      if (data.style) document.getElementById('r-style').value = data.style;
+      if (data.difficulty) document.getElementById('r-diff').value = data.difficulty;
+      if (data.abv) document.getElementById('r-abv').value = data.abv;
+      if (data.ibu) document.getElementById('r-ibu').value = data.ibu;
+      if (data.og) document.getElementById('r-og').value = data.og;
+      if (data.fg) document.getElementById('r-fg').value = data.fg;
+      if (data.batch) document.getElementById('r-batch').value = data.batch;
+      if (data.grain) document.getElementById('r-grain').value = data.grain;
+      if (data.brewDate) document.getElementById('r-brewdate').value = data.brewDate;
+      if (data.ingredients) document.getElementById('r-ingredients').value = data.ingredients;
+      if (data.notes) document.getElementById('r-notes').value = data.notes;
+      history.replaceState(null, '', location.pathname);
+      document.getElementById('recipes').scrollIntoView({ behavior: 'smooth' });
+      alert(`Recipe "${data.name}" loaded from share link — review and hit Save!`);
+    } catch(e) {}
+  }
+
+  checkShareLink();
+
+  // ---- ADVANCED WATER PROFILE ----
+  function toggleAdvanced() {
+    const open = document.getElementById('advancedSection').classList.toggle('open');
+    document.getElementById('advancedArrow').textContent = open ? '▼' : '▶';
+  }
+
+  // ---- BREW TIMER ----
+  let timerSecs = 3600;
+  let timerInterval = null;
+  let timerRunning = false;
+
+  function toggleTimer() {
+    document.getElementById('brewTimer').classList.toggle('open');
+  }
+
+  function setTimerPreset(mins) {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    timerSecs = mins * 60;
+    updateTimerDisplay();
+    const btn = document.getElementById('timerStartBtn');
+    btn.textContent = 'Start';
+    btn.classList.remove('running');
+  }
+
+  function updateTimerDisplay() {
+    const m = Math.floor(timerSecs / 60);
+    const s = timerSecs % 60;
+    document.getElementById('timerDisplay').textContent =
+      `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }
+
+  function startTimer() {
+    if (timerRunning) return;
+    timerRunning = true;
+    const btn = document.getElementById('timerStartBtn');
+    btn.textContent = 'Running…';
+    btn.classList.add('running');
+    timerInterval = setInterval(() => {
+      if (timerSecs <= 0) {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        btn.textContent = 'Done!';
+        btn.classList.remove('running');
+        document.getElementById('timerDisplay').textContent = '00:00';
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          [880, 660, 880].forEach((freq, i) => {
+            const o = ctx.createOscillator();
+            o.connect(ctx.destination);
+            o.frequency.value = freq;
+            o.start(ctx.currentTime + i * 0.25);
+            o.stop(ctx.currentTime + i * 0.25 + 0.2);
+          });
+        } catch(e) {}
+        return;
+      }
+      timerSecs--;
+      updateTimerDisplay();
+    }, 1000);
+  }
+
+  function pauseTimer() {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    const btn = document.getElementById('timerStartBtn');
+    btn.textContent = 'Resume';
+    btn.classList.remove('running');
+  }
+
+  function resetTimerFn() {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    timerSecs = 3600;
+    updateTimerDisplay();
+    const btn = document.getElementById('timerStartBtn');
+    btn.textContent = 'Start';
+    btn.classList.remove('running');
+  }
+
+  // ---- Q&A ----
 
   function addMessage(text, type) {
     const container = document.getElementById('chatMessages');
@@ -842,6 +2633,202 @@
       const data = await res.json();
       const reply = data.content?.[0]?.text || 'Sorry, I had trouble with that one. Try rephrasing!';
 
+      thinking.remove();
+      messages.push({ role: 'assistant', content: reply });
+      addMessage(reply, 'bot');
+    } catch (e) {
+      thinking.remove();
+      addMessage('Something went wrong. Check your connection and try again.', 'thinking');
+    }
+  }
+
+  function askSuggestion(btn) {
+    document.getElementById('chatInput').value = btn.textContent;
+    sendMessage();
+  }
+
+  // ---- STORE FINDER ----
+  async function findStores() {
+    const btn = document.getElementById('locateBtn');
+    const status = document.getElementById('finderStatus');
+    const results = document.getElementById('storeResults');
+
+    if (!navigator.geolocation) {
+      status.textContent = 'Geolocation is not supported by your browser.';
+      return;
+    }
+
+    btn.disabled = true;
+    document.getElementById('locateBtnIcon').textContent = '⏳';
+    status.textContent = 'Getting your location…';
+    results.innerHTML = '<div class="finder-empty">Searching nearby stores…</div>';
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        const radiusMiles = parseInt(document.getElementById('radiusSlider').value);
+        const radiusMeters = radiusMiles * 1609;
+
+        status.textContent = `Searching within ${radiusMiles} miles of your location…`;
+
+        try {
+          const res = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              model: 'claude-sonnet-4-20250514',
+              max_tokens: 2000,
+              system: `You are a helpful assistant that finds homebrew beer supply stores.
+The user is at latitude ${lat}, longitude ${lng}.
+Search radius: ${radiusMiles} miles (${radiusMeters} meters).
+
+Use the web_search tool to find homebrew supply stores, home brew shops, and beer making supply stores near these coordinates.
+Search for terms like "homebrew supply store near [nearest city]" and "home brew shop [state]".
+
+Return ONLY a JSON array (no markdown, no explanation) of up to 10 stores found, each with:
+{
+  "name": "Store Name",
+  "address": "Full street address",
+  "city": "City, State",
+  "phone": "phone number or empty string",
+  "website": "URL or empty string",
+  "distance": "estimated distance like 5 miles",
+  "rating": "Google rating like 4.8 or empty string",
+  "hours": "brief hours like Mon-Sat 10am-6pm or empty string",
+  "mapsUrl": "https://maps.google.com/?q=Store+Name+City+State"
+}
+
+Only include stores that are actually homebrew/homebrewing supply stores within ${radiusMiles} miles. If you cannot find any, return an empty array [].`,
+              messages: [{ role: 'user', content: `Find homebrew supply stores within ${radiusMiles} miles of lat:${lat}, lng:${lng}. Return only JSON.` }],
+              tools: [{ type: 'web_search_20250305', name: 'web_search' }]
+            })
+          });
+
+          const data = await res.json();
+
+          // Extract text from response (may include tool use blocks)
+          let rawText = '';
+          if (data.content) {
+            for (const block of data.content) {
+              if (block.type === 'text') rawText += block.text;
+            }
+          }
+
+          // Parse JSON from response
+          let stores = [];
+          try {
+            const jsonMatch = rawText.match(/\[[\s\S]*\]/);
+            if (jsonMatch) stores = JSON.parse(jsonMatch[0]);
+          } catch (e) {
+            stores = [];
+          }
+
+          btn.disabled = false;
+          document.getElementById('locateBtnIcon').textContent = '📍';
+
+          if (!stores || stores.length === 0) {
+            status.textContent = `No homebrew stores found within ${radiusMiles} miles. Try increasing the radius.`;
+            results.innerHTML = '<div class="finder-empty">No stores found. Try a larger search radius.</div>';
+            return;
+          }
+
+          status.textContent = `Found ${stores.length} store${stores.length !== 1 ? 's' : ''} within ${radiusMiles} miles.`;
+
+          results.innerHTML = stores.map(s => {
+            const isOpenNow = s.hours ? checkOpenNow(s.hours) : null;
+            const openBadge = isOpenNow === true
+              ? '<span class="store-open open">Open now</span>'
+              : isOpenNow === false
+              ? '<span class="store-open closed">Closed</span>'
+              : '';
+
+            const stars = s.rating ? '★ ' + s.rating : '';
+            const mapsLink = s.mapsUrl || `https://maps.google.com/?q=${encodeURIComponent(s.name + ' ' + s.address)}`;
+
+            return `
+              <div class="store-card">
+                <div class="store-card-top">
+                  <div class="store-name">${s.name}</div>
+                  ${s.distance ? `<span class="store-dist">${s.distance}</span>` : ''}
+                </div>
+                <div class="store-addr">${s.address}${s.city ? ', ' + s.city : ''}</div>
+                <div class="store-meta">
+                  ${stars ? `<span class="store-rating">★ ${s.rating}</span>` : ''}
+                  ${openBadge}
+                  ${s.hours ? `<span style="font-size:0.78rem;color:var(--text-light);font-style:italic;">${s.hours}</span>` : ''}
+                </div>
+                <div class="store-links">
+                  <a class="store-link" href="${mapsLink}" target="_blank">📍 Directions</a>
+                  ${s.phone ? `<a class="store-link" href="tel:${s.phone}">📞 Call</a>` : ''}
+                  ${s.website ? `<a class="store-link" href="${s.website}" target="_blank">🌐 Website</a>` : ''}
+                </div>
+              </div>
+            `;
+          }).join('');
+
+        } catch (err) {
+          btn.disabled = false;
+          document.getElementById('locateBtnIcon').textContent = '📍';
+          status.textContent = 'Search failed. Please try again.';
+          results.innerHTML = '<div class="finder-empty">Something went wrong. Please try again.</div>';
+        }
+      },
+      (err) => {
+        btn.disabled = false;
+        document.getElementById('locateBtnIcon').textContent = '📍';
+        const msgs = {
+          1: 'Location access was denied. Please allow location access in your browser settings.',
+          2: 'Your location could not be determined.',
+          3: 'Location request timed out. Please try again.'
+        };
+        status.textContent = msgs[err.code] || 'Could not get your location.';
+        results.innerHTML = '<div class="finder-empty">Location unavailable. Please check your browser permissions.</div>';
+      },
+      { timeout: 10000 }
+    );
+  }
+
+  function checkOpenNow(hoursStr) {
+    const now = new Date();
+    const h = now.getHours();
+    if (hoursStr.toLowerCase().includes('closed')) return false;
+    if (h < 8 || h >= 20) return false;
+    return null;
+  }
+
+  // ---- Q&A ----
+  function addMessage(text, type) {
+    const container = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'msg ' + type;
+    div.textContent = text;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+    return div;
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    addMessage(text, 'user');
+    messages.push({ role: 'user', content: text });
+    const thinking = addMessage('Brewing up an answer...', 'thinking');
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          system: 'You are an expert homebrewing assistant for a website called The Mash Tun. Answer questions about homebrewing beer helpfully and concisely. Focus on practical, actionable advice. Keep answers under 150 words unless more detail is truly needed. Be friendly and enthusiastic about craft beer.',
+          messages: messages
+        })
+      });
+      const data = await res.json();
+      const reply = data.content?.[0]?.text || 'Sorry, I had trouble with that one. Try rephrasing!';
       thinking.remove();
       messages.push({ role: 'assistant', content: reply });
       addMessage(reply, 'bot');
