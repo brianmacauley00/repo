@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Mash Tun — Homebrew Your Own Beer</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --amber: #C8871A;
+    --amber-light: #E8A83A;
+    --amber-dark: #8B5E0A;
+    --cream: #F5EDD8;
+    --cream-dark: #E8D9B8;
+    --bark: #2C1A0A;
+    --bark-mid: #4A2E12;
+    --bark-light: #6B4420;
+    --foam: #FBF6EC;
+    --hop: #4A6741;
+    --hop-light: #6B8F62;
+    --text: #2C1A0A;
+    --text-mid: #5A3A1A;
+    --text-light: #8B6A40;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Crimson Pro', Georgia, serif;
+    background: var(--cream);
+    color: var(--text);
+    font-size: 18px;
+    line-height: 1.7;
+  }
+
+  /* ---- NOISE TEXTURE OVERLAY ---- */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* ---- NAV ---- */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bark);
+    border-bottom: 3px solid var(--amber);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+  }
+
+  .nav-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: var(--amber-light);
+    letter-spacing: 0.02em;
+    text-decoration: none;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--cream-dark);
+    text-decoration: none;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-family: 'Crimson Pro', serif;
+    font-weight: 600;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--amber-light); }
+
+  /* ---- HERO ---- */
+  .hero {
+    background: var(--bark);
+    padding: 5rem 2rem 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 60px;
+    background: var(--cream);
+    clip-path: ellipse(55% 100% at 50% 100%);
+  }
+
+  .hero-eyebrow {
+    font-size: 0.8rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 1rem;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 900;
+    color: var(--cream);
+    line-height: 1.05;
+    margin-bottom: 1rem;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--amber-light);
+  }
+
+  .hero-sub {
+    color: var(--cream-dark);
+    font-size: 1.15rem;
+    font-style: italic;
+    max-width: 480px;
+    margin: 0 auto 2.5rem;
+    opacity: 0.85;
+  }
+
+  .hero-cta {
+    display: inline-block;
+    background: var(--amber);
+    color: var(--bark);
+    padding: 0.75rem 2.5rem;
+    text-decoration: none;
+    font-family: 'Crimson Pro', serif;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 2px;
+    transition: background 0.2s, transform 0.15s;
+  }
+
+  .hero-cta:hover { background: var(--amber-light); transform: translateY(-2px); }
+
+  .hop-decor {
+    font-size: 4rem;
+    position: absolute;
+    opacity: 0.08;
+    color: var(--amber-light);
+    font-family: 'Playfair Display', serif;
+  }
+  .hop-decor.left { left: 3%; top: 20%; transform: rotate(-30deg); }
+  .hop-decor.right { right: 3%; top: 30%; transform: rotate(20deg); }
+
+  /* ---- SECTIONS ---- */
+  section { padding: 4rem 1rem; }
+
+  .container { max-width: 960px; margin: 0 auto; }
+
+  .section-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--amber-dark);
+    margin-bottom: 0.5rem;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 700;
+    color: var(--bark);
+    margin-bottom: 0.5rem;
+    line-height: 1.15;
+  }
+
+  .section-rule {
+    width: 60px;
+    height: 3px;
+    background: var(--amber);
+    margin-bottom: 2rem;
+    border: none;
+  }
+
+  /* ---- HOW TO BREW ---- */
+  #guide { background: var(--foam); }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .step-card {
+    background: white;
+    border: 1px solid var(--cream-dark);
+    border-top: 4px solid var(--amber);
+    padding: 1.5rem;
+    border-radius: 2px;
+    position: relative;
+  }
+
+  .step-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--cream-dark);
+    line-height: 1;
+    position: absolute;
+    top: 1rem;
+    right: 1.25rem;
+  }
+
+  .step-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--bark);
+    margin-bottom: 0.5rem;
+  }
+
+  .step-card p {
+    font-size: 0.95rem;
+    color: var(--text-mid);
+    line-height: 1.6;
+  }
+
+  /* ---- BEER MENU ---- */
+  #menu { background: var(--bark); }
+  #menu .section-title { color: var(--cream); }
+  #menu .section-label { color: var(--amber); }
+
+  .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+    margin-top: 2rem;
+  }
+
+  .beer-card {
+    background: var(--bark-mid);
+    border: 1px solid var(--bark-light);
+    border-left: 5px solid var(--amber);
+    padding: 1.5rem;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .beer-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--amber);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .beer-card:hover { transform: translateY(-3px); border-left-color: var(--amber-light); }
+  .beer-card:hover::before { opacity: 0.04; }
+
+  .beer-card > * { position: relative; z-index: 1; }
+
+  .beer-style-tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    background: var(--amber-dark);
+    color: var(--amber-light);
+    padding: 2px 8px;
+    border-radius: 2px;
+    margin-bottom: 0.75rem;
+  }
+
+  .beer-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--cream);
+    margin-bottom: 0.4rem;
+  }
+
+  .beer-card .beer-desc {
+    font-size: 0.9rem;
+    color: var(--cream-dark);
+    opacity: 0.8;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  .beer-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8rem;
+  }
+
+  .beer-meta span {
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .beer-meta strong { color: var(--amber-light); }
+
+  .difficulty {
+    display: flex;
+    gap: 3px;
+    align-items: center;
+  }
+
+  .pip {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--bark-light);
+  }
+  .pip.on { background: var(--amber); }
+
+  /* ---- EQUIPMENT ---- */
+  #equipment { background: var(--cream); }
+
+  .equip-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  @media (max-width: 600px) { .equip-cols { grid-template-columns: 1fr; } }
+
+  .equip-group h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--bark);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--amber);
+  }
+
+  .equip-list { list-style: none; }
+
+  .equip-list li {
+    padding: 0.4rem 0;
+    border-bottom: 1px solid var(--cream-dark);
+    font-size: 0.95rem;
+    color: var(--text-mid);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .equip-list li::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--amber);
+    flex-shrink: 0;
+  }
+
+  /* ---- Q&A ---- */
+  #qa { background: var(--bark-mid); }
+  #qa .section-title { color: var(--cream); }
+  #qa .section-label { color: var(--amber); }
+
+  .chat-box {
+    background: var(--bark);
+    border: 1px solid var(--bark-light);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 1.5rem;
+  }
+
+  .chat-messages {
+    min-height: 240px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .msg {
+    max-width: 85%;
+    padding: 0.75rem 1rem;
+    border-radius: 3px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    animation: fadeUp 0.25s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg.user {
+    background: var(--amber-dark);
+    color: var(--cream);
+    align-self: flex-end;
+    border-bottom-right-radius: 0;
+  }
+
+  .msg.bot {
+    background: var(--bark-mid);
+    color: var(--cream-dark);
+    align-self: flex-start;
+    border-bottom-left-radius: 0;
+    border-left: 3px solid var(--amber);
+  }
+
+  .msg.thinking {
+    background: var(--bark-mid);
+    color: var(--text-light);
+    align-self: flex-start;
+    font-style: italic;
+    border-left: 3px solid var(--bark-light);
+  }
+
+  .chat-input-row {
+    display: flex;
+    border-top: 1px solid var(--bark-light);
+  }
+
+  .chat-input-row input {
+    flex: 1;
+    background: var(--bark);
+    border: none;
+    outline: none;
+    padding: 1rem 1.25rem;
+    color: var(--cream);
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+  }
+
+  .chat-input-row input::placeholder { color: var(--text-light); }
+
+  .chat-send {
+    background: var(--amber);
+    border: none;
+    color: var(--bark);
+    font-family: 'Crimson Pro', serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0 1.75rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .chat-send:hover { background: var(--amber-light); }
+
+  .qa-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .qa-chip {
+    background: transparent;
+    border: 1px solid var(--bark-light);
+    color: var(--cream-dark);
+    padding: 0.4rem 0.85rem;
+    border-radius: 20px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .qa-chip:hover { border-color: var(--amber); color: var(--amber-light); }
+
+  /* ---- FOOTER ---- */
+  footer {
+    background: var(--bark);
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    border-top: 3px solid var(--amber-dark);
+  }
+
+  footer strong { color: var(--amber); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-brand">⬡ The Mash Tun</a>
+  <ul class="nav-links">
+    <li><a href="#guide">How to Brew</a></li>
+    <li><a href="#menu">Beer Menu</a></li>
+    <li><a href="#equipment">Equipment</a></li>
+    <li><a href="#qa">Ask a Question</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hop-decor left">⬡</div>
+  <div class="hop-decor right">⬡</div>
+  <p class="hero-eyebrow">Craft · Ferment · Enjoy</p>
+  <h1>Brew <em>Your Own</em><br>Beer at Home</h1>
+  <p class="hero-sub">From grain to glass — a complete guide to homebrewing for every level.</p>
+  <a href="#guide" class="hero-cta">Start Brewing</a>
+</div>
+
+<!-- HOW TO BREW -->
+<section id="guide">
+  <div class="container">
+    <p class="section-label">The Process</p>
+    <h2 class="section-title">How to Brew Beer</h2>
+    <hr class="section-rule">
+    <p style="color: var(--text-mid); max-width: 620px; font-size: 1rem; margin-bottom: 0.5rem;">Brewing beer follows the same fundamental steps whether you're making a light lager or a rich stout. Each stage builds on the last — master these and you can brew nearly anything.</p>
+
+    <div class="steps-grid">
+      <div class="step-card">
+        <span class="step-num">01</span>
+        <h3>Sanitize Everything</h3>
+        <p>The golden rule of homebrewing. Any contamination will ruin a batch. Use a no-rinse sanitizer like Star San on all equipment before it touches your beer.</p>
+      </div>
+      <div class="step-card">
+        <span class="step-num">02</span>
+        <h3>Mashing the Grain</h3>
+        <p>Steep crushed malted barley in hot water (148–158°F) for 60 minutes. Enzymes convert starches into fermentable sugars, creating your wort.</p>
+      </div>
+      <div class="step-card">
+        <span class="step-num">03</span>
+        <h3>The Boil</h3>
+        <p>Boil the wort for 60–90 minutes. Add hops at different times — early for bitterness, late for aroma. This also sterilizes the wort.</p>
+      </div>
+      <div class="step-card">
+        <span class="step-num">04</span>
+        <h3>Cooling & Pitching</h3>
+        <p>Rapidly cool the wort to fermentation temperature (60–70°F for ales), then add your yeast. Speed matters — slow cooling invites contamination.</p>
+      </div>
+      <div class="step-card">
+        <span class="step-num">05</span>
+        <h3>Fermentation</h3>
+        <p>Yeast consumes the sugars and produces alcohol and CO₂. Most ales ferment in 1–2 weeks. Keep temperatures stable and leave it alone.</p>
+      </div>
+      <div class="step-card">
+        <span class="step-num">06</span>
+        <h3>Bottling & Conditioning</h3>
+        <p>Add a small amount of priming sugar before bottling. Residual yeast carbonates the beer naturally over 2 weeks. Then chill, pour, and enjoy.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BEER MENU -->
+<section id="menu">
+  <div class="container">
+    <p class="section-label">What to Brew</p>
+    <h2 class="section-title">The Beer Menu</h2>
+    <hr class="section-rule">
+    <p style="color: var(--cream-dark); opacity: 0.75; font-size: 1rem; max-width: 580px; margin-bottom: 0.5rem; font-style: italic;">From approachable starters to ambitious weekend projects — find your next brew.</p>
+
+    <div class="menu-grid">
+
+      <div class="beer-card">
+        <span class="beer-style-tag">American Ale</span>
+        <h3>American Pale Ale</h3>
+        <p class="beer-desc">Crisp, hoppy, and endlessly drinkable. The perfect first brew — forgiving, fast, and crowd-pleasing.</p>
+        <div class="beer-meta">
+          <span>ABV <strong>4.5–6%</strong></span>
+          <span>IBU <strong>30–45</strong></span>
+          <span>
+            <div class="difficulty">
+              <div class="pip on"></div><div class="pip on"></div><div class="pip"></div>
+            </div>
+            Beginner
+          </span>
+        </div>
+      </div>
+
+      <div class="beer-card">
+        <span class="beer-style-tag">Irish Stout</span>
+        <h3>Dry Irish Stout</h3>
+        <p class="beer-desc">Dark, roasty, and silky smooth. Notes of coffee and dark chocolate with a creamy finish. Think Guinness, but yours.</p>
+        <div class="beer-meta">
+          <span>ABV <strong>4–5%</strong></span>
+          <span>IBU <strong>35–45</strong></span>
+          <span>
+            <div class="difficulty">
+              <div class="pip on"></div><div class="pip on"></div><div class="pip"></div>
+            </div>
+            Beginner
+          </span>
+        </div>
+      </div>
+
+      <div class="beer-card">
+        <span class="beer-style-tag">German Wheat</span>
+        <h3>Hefeweizen</h3>
+        <p class="beer-desc">Cloudy, banana and clove aromas from classic German yeast. Light-bodied and refreshing — a summer staple.</p>
+        <div class="beer-meta">
+          <span>ABV <strong>4.5–5.5%</strong></span>
+          <span>IBU <strong>10–20</strong></span>
+          <span>
+            <div class="difficulty">
+              <div class="pip on"></div><div class="pip on"></div><div class="pip"></div>
+            </div>
+            Beginner
+          </span>
+        </div>
+      </div>
+
+      <div class="beer-card">
+        <span class="beer-style-tag">India Pale Ale</span>
+        <h3>New England IPA</h3>
+        <p class="beer-desc">Hazy, juicy, and bursting with tropical fruit. Dry-hopped heavily for maximum aroma. Wildly popular for good reason.</p>
+        <div class="beer-meta">
+          <span>ABV <strong>6–8%</strong></span>
+          <span>IBU <strong>40–70</strong></span>
+          <span>
+            <div class="difficulty">
+              <div class="pip on"></div><div class="pip on"></div><div class="pip on"></div>
+            </div>
+            Intermediate
+          </span>
+        </div>
+      </div>
+
+      <div class="beer-card">
+        <span class="beer-style-tag">Belgian Ale</span>
+        <h3>Belgian Saison</h3>
+        <p class="beer-desc">Spicy, earthy, and complex from wild-esque Belgian yeast. Dry and effervescent with a rustic farmhouse character.</p>
+        <div class="beer-meta">
+          <span>ABV <strong>5–8%</strong></span>
+          <span>IBU <strong>20–35</strong></span>
+          <span>
+            <div class="difficulty">
+              <div class="pip on"></div><div class="pip on"></div><div class="pip on"></div>
+            </div>
+            Intermediate
+          </span>
+        </div>
+      </div>
+
+      <div class="beer-card">
+        <span class="beer-style-tag">Imperial Stout</span>
+        <h3>Russian Imperial Stout</h3>
+        <p class="beer-desc">Big, bold, and complex. Rich chocolate, molasses, and dark fruit. Takes months to condition properly — worth every day.</p>
+        <div class="beer-meta">
+          <span>ABV <strong>9–13%</strong></span>
+          <span>IBU <strong>50–90</strong></span>
+          <span>
+            <div class="difficulty">
+              <div class="pip on"></div><div class="pip on"></div><div class="pip on"></div>
+            </div>
+            Advanced
+          </span>
+        </div>
+      </div>
+
+      <div class="beer-card">
+        <span class="beer-style-tag">American Lager</span>
+        <h3>Classic Cream Ale</h3>
+        <p class="beer-desc">Light, clean, and crushable. An easy-drinking warm-fermented lager hybrid — great for hot weather and beginners alike.</p>
+        <div class="beer-meta">
+          <span>ABV <strong>4.2–5.6%</strong></span>
+          <span>IBU <strong>10–22</strong></span>
+          <span>
+            <div class="difficulty">
+              <div class="pip on"></div><div class="pip"></div><div class="pip"></div>
+            </div>
+            Easy
+          </span>
+        </div>
+      </div>
+
+      <div class="beer-card">
+        <span class="beer-style-tag">Sour Ale</span>
+        <h3>Kettle Sour (Berliner Weisse)</h3>
+        <p class="beer-desc">Tart, refreshing, and lightly funky. Lacto-ferment the wort before boiling for quick, controlled sourness. Perfect with fruit additions.</p>
+        <div class="beer-meta">
+          <span>ABV <strong>2.5–3.5%</strong></span>
+          <span>IBU <strong>3–8</strong></span>
+          <span>
+            <div class="difficulty">
+              <div class="pip on"></div><div class="pip on"></div><div class="pip on"></div>
+            </div>
+            Intermediate
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- EQUIPMENT -->
+<section id="equipment">
+  <div class="container">
+    <p class="section-label">What You Need</p>
+    <h2 class="section-title">Equipment & Ingredients</h2>
+    <hr class="section-rule">
+    <div class="equip-cols">
+      <div class="equip-group">
+        <h3>Essential Equipment</h3>
+        <ul class="equip-list">
+          <li>Large brew kettle (5–8 gallon)</li>
+          <li>Fermentation vessel (carboy or bucket)</li>
+          <li>Airlock & stopper</li>
+          <li>Auto-siphon & tubing</li>
+          <li>Wort chiller (immersion or plate)</li>
+          <li>Hydrometer & thermometer</li>
+          <li>Bottle capper & caps</li>
+          <li>No-rinse sanitizer (Star San)</li>
+        </ul>
+      </div>
+      <div class="equip-group">
+        <h3>Key Ingredients</h3>
+        <ul class="equip-list">
+          <li>Malted barley (base & specialty grains)</li>
+          <li>Hops (pellet or whole cone)</li>
+          <li>Yeast (liquid or dry packets)</li>
+          <li>Water (filtered or adjusted)</li>
+          <li>Priming sugar (corn sugar)</li>
+          <li>Irish moss (fining agent)</li>
+          <li>Yeast nutrient (optional)</li>
+          <li>Fruit / adjuncts (for specialty beers)</li>
+        </ul>
+      </div>
+      <div class="equip-group">
+        <h3>Nice to Have</h3>
+        <ul class="equip-list">
+          <li>Grain mill</li>
+          <li>Mash tun (cooler or kettle)</li>
+          <li>Refractometer</li>
+          <li>pH meter</li>
+          <li>Kegging system (cornelius keg)</li>
+          <li>Temperature controller</li>
+        </ul>
+      </div>
+      <div class="equip-group">
+        <h3>Where to Buy</h3>
+        <ul class="equip-list">
+          <li>Your local homebrew shop (best)</li>
+          <li>MoreBeer.com</li>
+          <li>Northern Brewer</li>
+          <li>Adventures in Homebrewing</li>
+          <li>Midwest Supplies</li>
+          <li>Amazon (for equipment)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Q&A -->
+<section id="qa">
+  <div class="container">
+    <p class="section-label">Ask Anything</p>
+    <h2 class="section-title">Brewing Q&A</h2>
+    <hr class="section-rule">
+    <p style="color: var(--cream-dark); opacity: 0.75; font-size: 1rem; max-width: 580px; margin-bottom: 0;">Got a question about your brew? Ask below — powered by Claude AI.</p>
+
+    <div class="chat-box">
+      <div class="chat-messages" id="chatMessages">
+        <div class="msg bot">Welcome to The Mash Tun! Ask me anything about homebrewing — ingredients, process, troubleshooting, recipes, you name it. 🍺</div>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chatInput" placeholder="e.g. What yeast should I use for a NEIPA?" />
+        <button class="chat-send" onclick="sendMessage()">Ask</button>
+      </div>
+    </div>
+
+    <div class="qa-suggestions">
+      <button class="qa-chip" onclick="askSuggestion(this)">How long does fermentation take?</button>
+      <button class="qa-chip" onclick="askSuggestion(this)">Why is my beer cloudy?</button>
+      <button class="qa-chip" onclick="askSuggestion(this)">Best beginner beer to brew?</button>
+      <button class="qa-chip" onclick="askSuggestion(this)">What ABV is safe to bottle?</button>
+      <button class="qa-chip" onclick="askSuggestion(this)">How do I dry hop?</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <strong>The Mash Tun</strong> · Homebrew Your Own Beer<br>
+  <span style="opacity:0.6; font-size:0.8rem;">Drink responsibly. Brew obsessively.</span>
+</footer>
+
+<script>
+  const messages = [];
+
+  function addMessage(text, type) {
+    const container = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'msg ' + type;
+    div.textContent = text;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+    return div;
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    input.value = '';
+    addMessage(text, 'user');
+    messages.push({ role: 'user', content: text });
+
+    const thinking = addMessage('Brewing up an answer...', 'thinking');
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          system: 'You are an expert homebrewing assistant for a website called The Mash Tun. Answer questions about homebrewing beer helpfully and concisely. Focus on practical, actionable advice. Keep answers under 150 words unless more detail is truly needed. Be friendly and enthusiastic about craft beer.',
+          messages: messages
+        })
+      });
+
+      const data = await res.json();
+      const reply = data.content?.[0]?.text || 'Sorry, I had trouble with that one. Try rephrasing!';
+
+      thinking.remove();
+      messages.push({ role: 'assistant', content: reply });
+      addMessage(reply, 'bot');
+    } catch (e) {
+      thinking.remove();
+      addMessage('Something went wrong. Check your connection and try again.', 'thinking');
+    }
+  }
+
+  function askSuggestion(btn) {
+    document.getElementById('chatInput').value = btn.textContent;
+    sendMessage();
+  }
+
+  document.getElementById('chatInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') sendMessage();
+  });
+</script>
+</body>
+</html>
