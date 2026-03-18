@@ -17,6 +17,18 @@
   }
 }
 
+.beer-mugs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  max-width: 400px;
+}
+
+.beer-mug {
+  font-size: 2rem;
+}
+
 .hero {
   position: relative;
 

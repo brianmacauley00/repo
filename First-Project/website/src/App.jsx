@@ -27,6 +27,12 @@ function App() {
         >
           Count is {count}
         </button>
+
+        <div className="beer-mugs">
+          {Array.from({ length: count || 1 }).map((_, i) => (
+            <span key={i} className="beer-mug">🍺</span>
+          ))}
+        </div>
       </section>
 
       <div className="ticks"></div>
