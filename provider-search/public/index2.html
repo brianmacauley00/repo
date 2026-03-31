@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Provider Search</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0d1117; color: #e6edf3; min-height: 100vh; }
+
+  /* ── Header ── */
+  header { background: #161b22; border-bottom: 1px solid #21262d; padding: 16px 24px; display: flex; align-items: center; gap: 12px; }
+  header h1 { font-size: 18px; font-weight: 600; color: #f0f6fc; }
+  header span { font-size: 12px; color: #8b949e; background: #21262d; padding: 2px 8px; border-radius: 12px; }
+
+  /* ── Layout ── */
+  .layout { display: flex; height: calc(100vh - 57px); }
+  .sidebar { width: 320px; min-width: 280px; background: #161b22; border-right: 1px solid #21262d; display: flex; flex-direction: column; overflow: hidden; }
+  .results-panel { flex: 1; overflow-y: auto; padding: 16px; }
+
+  /* ── Search Form ── */
+  .search-form { padding: 16px; border-bottom: 1px solid #21262d; }
+  .search-mode { display: flex; gap: 4px; margin-bottom: 12px; }
+  .mode-btn { flex: 1; padding: 6px; font-size: 12px; border: 1px solid #30363d; background: transparent; color: #8b949e; border-radius: 6px; cursor: pointer; transition: all .15s; }
+  .mode-btn.active { background: #1f6feb; border-color: #1f6feb; color: #fff; }
+  .field { margin-bottom: 10px; }
+  label { display: block; font-size: 11px; color: #8b949e; margin-bottom: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: .4px; }
+  input, select { width: 100%; background: #0d1117; border: 1px solid #30363d; color: #e6edf3; padding: 8px 10px; border-radius: 6px; font-size: 13px; outline: none; transition: border .15s; }
+  input:focus, select:focus { border-color: #1f6feb; }
+  .row2 { display: flex; gap: 8px; }
+  .row2 .field { flex: 1; }
+  .search-btn { width: 100%; padding: 9px; background: #1f6feb; color: #fff; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background .15s; margin-top: 4px; }
+  .search-btn:hover { background: #388bfd; }
+  .search-btn:disabled { background: #21262d; color: #8b949e; cursor: not-allowed; }
+
+  /* ── Filters (collapsible) ── */
+  .filters-toggle { padding: 10px 16px; font-size: 12px; color: #8b949e; cursor: pointer; border-bottom: 1px solid #21262d; display: flex; justify-content: space-between; user-select: none; }
+  .filters-toggle:hover { color: #e6edf3; }
+  .filters-body { padding: 12px 16px; border-bottom: 1px solid #21262d; display: none; }
+  .filters-body.open { display: block; }
+  .checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 13px; color: #c9d1d9; }
+  .checkbox-row input[type=checkbox] { width: auto; accent-color: #1f6feb; }
+
+  /* ── Results ── */
+  .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .results-header h2 { font-size: 14px; color: #8b949e; font-weight: 400; }
+  .results-header .count { font-size: 13px; color: #3fb950; font-weight: 600; }
+  .provider-card { background: #161b22; border: 1px solid #21262d; border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: border-color .15s, transform .1s; }
+  .provider-card:hover { border-color: #388bfd; transform: translateY(-1px); }
+  .provider-card.selected { border-color: #1f6feb; background: #0d1f3a; }
+  .pc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+  .pc-name { font-size: 15px; font-weight: 600; color: #f0f6fc; }
+  .pc-npi { font-size: 11px; color: #6e7681; margin-top: 2px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+  .tag { font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 500; }
+  .tag-specialty { background: #0d2137; color: #79c0ff; border: 1px solid #1f4a7a; }
+  .tag-credential { background: #0d2a14; color: #56d364; border: 1px solid #1a4a24; }
+  .tag-board { background: #2d1f00; color: #e3b341; border: 1px solid #4d3500; }
+  .tag-pc { background: #1f0d2a; color: #d2a8ff; border: 1px solid #4a1f7a; }
+  .pc-loc { font-size: 12px; color: #8b949e; display: flex; align-items: center; gap: 4px; }
+
+  /* ── Detail Drawer ── */
+  .drawer { width: 0; overflow: hidden; background: #161b22; border-left: 1px solid #21262d; transition: width .2s ease; display: flex; flex-direction: column; }
+  .drawer.open { width: 340px; min-width: 300px; }
+  .drawer-inner { width: 340px; min-width: 300px; overflow-y: auto; padding: 20px; }
+  .drawer-close { background: none; border: none; color: #8b949e; font-size: 18px; cursor: pointer; float: right; line-height: 1; }
+  .drawer-close:hover { color: #e6edf3; }
+  .drawer h3 { font-size: 17px; font-weight: 700; color: #f0f6fc; margin-bottom: 2px; margin-right: 28px; }
+  .drawer-npi { font-size: 11px; color: #6e7681; margin-bottom: 12px; }
+  .section { margin-bottom: 16px; }
+  .section-title { font-size: 11px; color: #8b949e; text-transform: uppercase; letter-spacing: .5px; font-weight: 600; margin-bottom: 6px; border-bottom: 1px solid #21262d; padding-bottom: 4px; }
+  .kv { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; }
+  .kv .k { color: #8b949e; }
+  .kv .v { color: #c9d1d9; text-align: right; max-width: 60%; }
+  .diag-bar-wrap { margin-bottom: 6px; }
+  .diag-label { font-size: 11px; color: #c9d1d9; margin-bottom: 2px; display: flex; justify-content: space-between; }
+  .diag-bar { height: 4px; background: #21262d; border-radius: 2px; }
+  .diag-bar-fill { height: 4px; background: #1f6feb; border-radius: 2px; }
+  .diag-loading { font-size: 12px; color: #8b949e; padding: 8px 0; }
+
+  /* ── Pagination ── */
+  .pagination { display: flex; justify-content: center; gap: 8px; padding: 16px 0; }
+  .page-btn { padding: 6px 14px; background: #21262d; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px; cursor: pointer; font-size: 13px; }
+  .page-btn:hover { background: #30363d; }
+  .page-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+  /* ── States ── */
+  .empty { text-align: center; padding: 60px 20px; color: #8b949e; }
+  .empty .icon { font-size: 40px; margin-bottom: 12px; }
+  .empty p { font-size: 14px; }
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #30363d; border-top-color: #1f6feb; border-radius: 50%; animation: spin .6s linear infinite; vertical-align: middle; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-banner { background: #1f0a0a; border: 1px solid #7f1d1d; color: #f87171; padding: 12px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏥 Provider Search</h1>
+  <span>LinQ Studio API</span>
+  <span style="margin-left:auto;color:#3fb950" id="api-status">● proxy:3131</span>
+</header>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="search-form">
+      <div class="search-mode">
+        <button class="mode-btn active" onclick="setMode('zip')" id="mode-zip">📍 By ZIP</button>
+        <button class="mode-btn" onclick="setMode('state')" id="mode-state">🗺 By State</button>
+      </div>
+
+      <div id="zip-fields">
+        <div class="field">
+          <label>ZIP Code</label>
+          <input id="f-zip" type="text" maxlength="5" placeholder="e.g. 77001" />
+        </div>
+        <div class="field">
+          <label>Radius (miles)</label>
+          <input id="f-radius" type="range" min="5" max="100" value="25" oninput="document.getElementById('radius-val').textContent=this.value+' mi'" style="padding:4px 0;background:none;border:none" />
+          <span id="radius-val" style="font-size:12px;color:#8b949e">25 mi</span>
+        </div>
+      </div>
+
+      <div id="state-fields" style="display:none">
+        <div class="row2">
+          <div class="field">
+            <label>State</label>
+            <select id="f-state"><option value="">-- State --</option></select>
+          </div>
+          <div class="field">
+            <label>City</label>
+            <input id="f-city" type="text" placeholder="Optional" />
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Specialty</label>
+        <input id="f-specialty" type="text" placeholder="e.g. Cardiology" list="specialty-list" />
+        <datalist id="specialty-list"></datalist>
+      </div>
+
+      <div class="field">
+        <label>Credential</label>
+        <select id="f-credential"><option value="">Any</option></select>
+      </div>
+
+      <div class="field">
+        <label>Limit</label>
+        <select id="f-limit">
+          <option value="10">10</option>
+          <option value="25" selected>25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+
+      <button class="search-btn" id="search-btn" onclick="doSearch()">Search Providers</button>
+    </div>
+
+    <div class="filters-toggle" onclick="toggleFilters()">
+      <span>⚙ Advanced Filters</span><span id="filters-arrow">▼</span>
+    </div>
+    <div class="filters-body" id="filters-body">
+      <div class="checkbox-row"><input type="checkbox" id="f-board" /><label for="f-board" style="text-transform:none;letter-spacing:0;font-size:13px;color:#c9d1d9">Board Certified only</label></div>
+      <div class="checkbox-row"><input type="checkbox" id="f-primarycare" /><label for="f-primarycare" style="text-transform:none;letter-spacing:0;font-size:13px;color:#c9d1d9">Primary Care only</label></div>
+      <div class="checkbox-row"><input type="checkbox" id="f-clinical" /><label for="f-clinical" style="text-transform:none;letter-spacing:0;font-size:13px;color:#c9d1d9">Clinical Trial Investigators</label></div>
+      <div class="field" style="margin-top:8px">
+        <label>Gender</label>
+        <select id="f-gender"><option value="">Any</option><option value="M">Male</option><option value="F">Female</option></select>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Grad Year Min</label>
+          <input id="f-grad-min" type="number" placeholder="e.g. 1990" min="1900" max="2030" />
+        </div>
+        <div class="field">
+          <label>Grad Year Max</label>
+          <input id="f-grad-max" type="number" placeholder="e.g. 2015" min="1900" max="2030" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="results-panel" id="results-panel">
+    <div class="empty">
+      <div class="icon">🔍</div>
+      <p>Enter a ZIP code or select a state to find providers.</p>
+    </div>
+  </div>
+
+  <!-- Drawer -->
+  <div class="drawer" id="drawer">
+    <div class="drawer-inner" id="drawer-inner"></div>
+  </div>
+
+</div>
+
+<script>
+const PROXY = 'http://localhost:3131';
+const KEY   = 'lqs_dev_12345678901234567890';
+let mode = 'zip', cursor = null, lastParams = {}, selectedNpi = null;
+
+// ── Init ──
+async function init() {
+  await Promise.all([loadStates(), loadSpecialties(), loadCredentials()]);
+}
+
+async function apiFetch(path) {
+  const r = await fetch(PROXY + path, { headers: { 'X-API-Key': KEY } });
+  return r.json();
+}
+
+async function loadStates() {
+  try {
+    const d = await apiFetch('/v1/lookup/states');
+    const sel = document.getElementById('f-state');
+    (d.data || []).forEach(s => {
+      const o = document.createElement('option');
+      o.value = s.state_code; o.textContent = `${s.state_name} (${(s.provider_count||0).toLocaleString()})`;
+      sel.appendChild(o);
+    });
+  } catch(e) {}
+}
+
+async function loadSpecialties() {
+  try {
+    const d = await apiFetch('/v1/lookup/specialties?limit=200');
+    const dl = document.getElementById('specialty-list');
+    (d.data || []).forEach(s => {
+      const o = document.createElement('option'); o.value = s.specialty; dl.appendChild(o);
+    });
+  } catch(e) {}
+}
+
+async function loadCredentials() {
+  try {
+    const d = await apiFetch('/v1/lookup/credentials');
+    const sel = document.getElementById('f-credential');
+    (d.data || []).forEach(c => {
+      const o = document.createElement('option');
+      o.value = c.credential; o.textContent = `${c.credential} (${(c.provider_count||0).toLocaleString()})`;
+      sel.appendChild(o);
+    });
+  } catch(e) {}
+}
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('zip-fields').style.display   = m === 'zip'   ? '' : 'none';
+  document.getElementById('state-fields').style.display = m === 'state' ? '' : 'none';
+  document.getElementById('mode-zip').classList.toggle('active',   m === 'zip');
+  document.getElementById('mode-state').classList.toggle('active', m === 'state');
+}
+
+function toggleFilters() {
+  const b = document.getElementById('filters-body');
+  b.classList.toggle('open');
+  document.getElementById('filters-arrow').textContent = b.classList.contains('open') ? '▲' : '▼';
+}
+
+function buildParams(cur) {
+  const p = new URLSearchParams();
+  const limit = document.getElementById('f-limit').value;
+  p.set('limit', limit);
+  if (cur) p.set('cursor', cur);
+
+  if (mode === 'zip') {
+    const zip = document.getElementById('f-zip').value.trim();
+    if (!zip) { alert('Enter a ZIP code.'); return null; }
+    p.set('zip', zip);
+    p.set('radius_miles', document.getElementById('f-radius').value);
+  } else {
+    const st = document.getElementById('f-state').value;
+    if (!st) { alert('Select a state.'); return null; }
+    p.set('state', st);
+    const city = document.getElementById('f-city').value.trim();
+    if (city) p.set('city', city);
+  }
+
+  const spec = document.getElementById('f-specialty').value.trim();
+  if (spec) p.set('primary_specialty', spec);
+  const cred = document.getElementById('f-credential').value;
+  if (cred) p.set('credential', cred);
+  const gender = document.getElementById('f-gender').value;
+  if (gender) p.set('gender_abbr', gender);
+  const gradMin = document.getElementById('f-grad-min').value;
+  if (gradMin) p.set('graduation_year_min', gradMin);
+  const gradMax = document.getElementById('f-grad-max').value;
+  if (gradMax) p.set('graduation_year_max', gradMax);
+  if (document.getElementById('f-board').checked)       p.set('is_board_certified', 'true');
+  if (document.getElementById('f-primarycare').checked) p.set('is_primary_care', 'true');
+  if (document.getElementById('f-clinical').checked)    p.set('is_clinical_trial', 'true');
+
+  return p;
+}
+
+async function doSearch(cur) {
+  const params = buildParams(cur);
+  if (!params) return;
+  if (!cur) { lastParams = params; cursor = null; }
+
+  const btn = document.getElementById('search-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Searching…';
+  setResults('<div class="empty"><div class="spinner" style="width:24px;height:24px;border-width:3px"></div></div>');
+  closeDrawer();
+
+  try {
+    const d = await apiFetch(`/v1/providers?${params}`);
+    if (d.errors && d.errors.length) {
+      setResults(`<div class="error-banner">❌ ${d.errors[0].title}: ${d.errors[0].detail}</div>`); return;
+    }
+    const providers = d.data || [];
+    const paging    = d.paging || {};
+    renderResults(providers, paging);
+  } catch(e) {
+    setResults(`<div class="error-banner">❌ ${e.message}</div>`);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Search Providers';
+  }
+}
+
+function renderResults(providers, paging) {
+  const panel = document.getElementById('results-panel');
+  const total = paging.total_count;
+  const shown = providers.length;
+
+  if (!shown) {
+    setResults('<div class="empty"><div class="icon">🤷</div><p>No providers found. Try broadening your search.</p></div>'); return;
+  }
+
+  let html = `<div class="results-header"><h2>${shown} provider${shown!==1?'s':''} returned</h2>${total!=null?`<span class="count">${total.toLocaleString()} total</span>`:''}</div>`;
+
+  providers.forEach(p => {
+    const name = [p.prefix, p.first_name, p.last_name].filter(Boolean).join(' ');
+    const cred = p.credential || '';
+    const loc  = [p.city, p.state, p.zip].filter(Boolean).join(', ');
+    const spec = p.primary_specialty || p.specialty || '';
+    html += `
+      <div class="provider-card" id="card-${p.npi}" onclick="openDrawer('${p.npi}', ${JSON.stringify(p).replace(/"/g,'&quot;')})">
+        <div class="pc-top">
+          <div>
+            <div class="pc-name">${name}${cred ? ` <span style="font-weight:400;color:#8b949e;font-size:13px">${cred}</span>` : ''}</div>
+            <div class="pc-npi">NPI ${p.npi}</div>
+          </div>
+        </div>
+        <div class="tags">
+          ${spec ? `<span class="tag tag-specialty">${spec}</span>` : ''}
+          ${cred ? `<span class="tag tag-credential">${cred}</span>` : ''}
+          ${p.is_board_certified ? `<span class="tag tag-board">⭐ Board Certified</span>` : ''}
+          ${p.is_primary_care    ? `<span class="tag tag-pc">🩺 Primary Care</span>` : ''}
+        </div>
+        <div class="pc-loc">📌 ${loc || 'Location unknown'}</div>
+      </div>`;
+  });
+
+  // Pagination
+  html += `<div class="pagination">
+    <button class="page-btn" onclick="doSearch()" ${!cursor && !paging.prev_cursor ? 'disabled' : ''}>← Prev</button>
+    <button class="page-btn" onclick="doSearch('${paging.next_cursor||''}')" ${!paging.has_more ? 'disabled' : ''}>Next →</button>
+  </div>`;
+
+  panel.innerHTML = html;
+}
+
+function setResults(html) { document.getElementById('results-panel').innerHTML = html; }
+
+// ── Drawer ──
+async function openDrawer(npi, p) {
+  if (selectedNpi === npi) { closeDrawer(); return; }
+  selectedNpi = npi;
+  document.querySelectorAll('.provider-card').forEach(c => c.classList.remove('selected'));
+  const card = document.getElementById(`card-${npi}`);
+  if (card) card.classList.add('selected');
+
+  const drawer = document.getElementById('drawer');
+  drawer.classList.add('open');
+
+  const name = [p.prefix, p.first_name, p.last_name, p.credential].filter(Boolean).join(' ');
+  const loc  = [p.address_1, p.city, p.state, p.zip].filter(Boolean).join(', ');
+
+  document.getElementById('drawer-inner').innerHTML = `
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    <h3>${name}</h3>
+    <div class="drawer-npi">NPI: ${npi}</div>
+    <div class="tags" style="margin-bottom:14px">
+      ${p.primary_specialty ? `<span class="tag tag-specialty">${p.primary_specialty}</span>` : ''}
+      ${p.credential        ? `<span class="tag tag-credential">${p.credential}</span>` : ''}
+      ${p.is_board_certified ? `<span class="tag tag-board">⭐ Board Certified</span>` : ''}
+      ${p.is_primary_care    ? `<span class="tag tag-pc">🩺 Primary Care</span>` : ''}
+      ${p.is_clinical_trial  ? `<span class="tag" style="background:#1a1000;color:#f0a500;border:1px solid #5a3a00">🔬 Clinical Trials</span>` : ''}
+    </div>
+
+    <div class="section">
+      <div class="section-title">Contact & Location</div>
+      ${kv('Address', loc || '—')}
+      ${kv('Phone', p.phone || '—')}
+      ${kv('Fax',   p.fax   || '—')}
+    </div>
+
+    <div class="section">
+      <div class="section-title">Specialty</div>
+      ${kv('Primary',   p.primary_specialty   || '—')}
+      ${kv('Secondary', p.secondary_specialty || '—')}
+      ${kv('Sub',       p.sub_specialty       || '—')}
+      ${kv('CMS Type',  p.cms_type            || '—')}
+    </div>
+
+    <div class="section">
+      <div class="section-title">Education</div>
+      ${kv('Medical School',   p.medical_school   || '—')}
+      ${kv('Graduation Year',  p.graduation_year  || '—')}
+    </div>
+
+    <div class="section">
+      <div class="section-title">Affiliations</div>
+      ${kv('Hospital',  p.hospital_organization_name || '—')}
+      ${kv('IDN',       p.integrated_delivery_network || '—')}
+      ${kv('Facility',  p.facility_name || '—')}
+    </div>
+
+    <div class="section">
+      <div class="section-title">Diagnosis Patterns <span style="font-weight:400;color:#6e7681">(top conditions treated)</span></div>
+      <div id="diag-section"><div class="diag-loading"><span class="spinner"></span>Loading…</div></div>
+    </div>
+  `;
+
+  loadDiagnoses(npi);
+}
+
+function kv(k, v) { return `<div class="kv"><span class="k">${k}</span><span class="v">${v}</span></div>`; }
+
+async function loadDiagnoses(npi) {
+  try {
+    const d = await apiFetch(`/v1/providers/${npi}/diagnoses?limit=8`);
+    const diags = d.data || [];
+    const el = document.getElementById('diag-section');
+    if (!el) return;
+    if (!diags.length) { el.innerHTML = '<div style="font-size:12px;color:#6e7681">No diagnosis data available.</div>'; return; }
+    el.innerHTML = diags.map(d => `
+      <div class="diag-bar-wrap">
+        <div class="diag-label"><span>${d.description || d.icd10_code}</span><span>${d.percentage != null ? d.percentage.toFixed(1)+'%' : ''}</span></div>
+        <div class="diag-bar"><div class="diag-bar-fill" style="width:${d.percentage||0}%"></div></div>
+      </div>`).join('');
+  } catch(e) {
+    const el = document.getElementById('diag-section');
+    if (el) el.innerHTML = '<div style="font-size:12px;color:#6e7681">Could not load diagnoses.</div>';
+  }
+}
+
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.querySelectorAll('.provider-card').forEach(c => c.classList.remove('selected'));
+  selectedNpi = null;
+}
+
+init();
+</script>
+</body>
+</html>

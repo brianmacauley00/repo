@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinQ Studio Provider Search | Norstella</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<style>
+:root {
+  --navy:#0D1B3E; --teal:#03F4D8; --teal-dark:#02C9B1; --teal-dim:rgba(3,244,216,.12);
+  --blue:#80a1c1; --brown:#a77e58; --rust:#ba3f1d;
+  --bg:#F3F6FA; --white:#FFFFFF; --muted:#4a6f8f; --border:#c4d4e4;
+  --nav-h:56px; --sb-w:272px; --radius:10px;
+  --sb-border:#e8ecf4; --sb-hover:#f5f7ff;
+  --sb-label:#374151; --sb-muted:#6b7280;
+  --sb-accent:#2f5fe8; --sb-accent-bg:#eff4ff; --sb-accent-border:#c7d4fb;
+  --sb-input:#f9fafb; --sb-input-border:#e2e6ef; --sb-track:#e5e7eb;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:#0D1B3E;font-size:13px;display:flex;flex-direction:column;}
+
+/* NAV */
+.topnav{flex-shrink:0;height:var(--nav-h);background:var(--navy);display:flex;align-items:center;padding:0 20px;gap:12px;border-bottom:2px solid var(--teal);z-index:200;}
+.brand{color:#fff;font-size:16px;font-weight:700;white-space:nowrap;}
+.brand span{color:var(--teal);}
+.nav-tabs{display:flex;gap:2px;background:rgba(255,255,255,.06);border-radius:7px;padding:3px;margin-left:16px;}
+.nav-tab{padding:5px 13px;border-radius:5px;border:none;background:transparent;color:rgba(255,255,255,.5);cursor:pointer;font-size:12px;font-weight:600;transition:all .15s;white-space:nowrap;}
+.nav-tab.active{background:var(--teal);color:var(--navy);}
+.nav-tab.gap-tab.active{background:linear-gradient(135deg,var(--rust),#d45a36);color:#fff;}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.nav-label{color:rgba(255,255,255,.4);font-size:12px;}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--teal);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;cursor:pointer;}
+.btn-saved{display:flex;align-items:center;gap:5px;padding:5px 11px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:rgba(255,255,255,.7);font-size:11px;font-weight:600;cursor:pointer;}
+.btn-saved:hover{background:rgba(3,244,216,.12);border-color:rgba(3,244,216,.3);color:var(--teal);}
+
+/* LAYOUT */
+.layout{display:flex;flex:1;min-height:0;overflow:hidden;}
+
+/* SIDEBAR */
+.sidebar{width:var(--sb-w);flex-shrink:0;background:#fff;border-right:1px solid var(--sb-border);display:flex;flex-direction:column;overflow:hidden;}
+.sb-sticky-head{flex-shrink:0;padding:12px 16px 10px;border-bottom:1px solid var(--sb-border);display:flex;align-items:center;justify-content:space-between;}
+.sb-head-left{display:flex;align-items:center;gap:8px;}
+.sb-head-icon{color:var(--sb-accent);font-size:13px;}
+.sb-head-title{font-size:12px;font-weight:700;color:#111827;}
+.sb-filter-badge{background:var(--sb-accent);color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:10px;display:none;}
+.sb-filter-badge.vis{display:inline-block;}
+.sb-clear-all{font-size:11px;color:var(--sb-muted);cursor:pointer;font-weight:500;text-decoration:underline;text-underline-offset:2px;display:none;}
+.sb-clear-all:hover{color:var(--rust);}
+.sb-body{flex:1;overflow-y:auto;overflow-x:hidden;}
+.sb-body::-webkit-scrollbar{width:4px;}
+.sb-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);border-radius:2px;}
+.sb-footer{flex-shrink:0;padding:12px 16px;border-top:1px solid var(--sb-border);display:flex;flex-direction:column;gap:7px;}
+
+/* FILTER SECTIONS */
+.fs{border-bottom:1px solid var(--sb-border);}
+.fs-head{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;cursor:pointer;user-select:none;}
+.fs-head:hover{background:var(--sb-hover);}
+.fs-head-left{display:flex;align-items:center;gap:8px;}
+.fs-head-icon{width:16px;text-align:center;font-size:11px;color:var(--sb-accent);flex-shrink:0;}
+.fs-head-title{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--sb-label);}
+.fs-chev{font-size:9px;color:#9ca3af;transition:transform .18s;}
+.fs-chev.open{transform:rotate(180deg);}
+.fs-body{display:none;padding:6px 16px 14px;}
+.fs-body.open{display:block;}
+.fl{font-size:10px;font-weight:700;color:var(--sb-muted);text-transform:uppercase;letter-spacing:.07em;margin:10px 0 4px;}
+.fl:first-child{margin-top:2px;}
+input.fi,select.fi{width:100%;background:var(--sb-input);border:1.5px solid var(--sb-input-border);border-radius:7px;padding:7px 10px;color:#111827;font-size:12px;outline:none;transition:border-color .15s;appearance:auto;}
+input.fi:focus,select.fi:focus{border-color:var(--sb-accent);background:#fff;}
+input.fi::placeholder{color:#9ca3af;}
+.radius-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px;}
+.r-chip{padding:5px 10px;border:1.5px solid var(--sb-input-border);border-radius:20px;font-size:11px;font-weight:600;color:var(--sb-muted);cursor:pointer;background:var(--sb-input);}
+.r-chip:hover{border-color:var(--sb-accent);color:var(--sb-accent);}
+.r-chip.active{background:var(--sb-accent);border-color:var(--sb-accent);color:#fff;}
+.cc{display:flex;flex-direction:column;gap:5px;}
+.cr{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;border:1.5px solid var(--sb-input-border);background:var(--sb-input);color:#374151;cursor:pointer;transition:all .12s;font-size:12px;font-weight:500;}
+.cr:hover{border-color:var(--sb-accent-border);background:var(--sb-accent-bg);}
+.cr.on{border-color:var(--sb-accent);background:var(--sb-accent-bg);color:#1e3a8a;}
+.ci{font-size:12px;width:16px;text-align:center;flex-shrink:0;color:var(--sb-muted);}
+.cr.on .ci{color:var(--sb-accent);}
+.ck{margin-left:auto;width:16px;height:16px;border-radius:4px;border:1.5px solid #d1d5db;display:flex;align-items:center;justify-content:center;background:#fff;flex-shrink:0;}
+.cr.on .ck{background:var(--sb-accent);border-color:var(--sb-accent);}
+.cki{font-size:9px;color:#fff;display:none;}
+.cr.on .cki{display:block;}
+.cr.sev-c.on{border-color:rgba(186,63,29,.4);background:rgba(186,63,29,.08);color:#991b1b;}
+.cr.sev-c.on .ck{background:var(--rust);border-color:var(--rust);}
+.cr.sev-s.on{border-color:rgba(212,90,54,.35);background:rgba(212,90,54,.08);color:#9a3412;}
+.cr.sev-s.on .ck{background:#d45a36;border-color:#d45a36;}
+.cr.sev-m.on{border-color:rgba(167,126,88,.35);background:rgba(167,126,88,.08);color:#78350f;}
+.cr.sev-m.on .ck{background:var(--brown);border-color:var(--brown);}
+.ta-w{position:relative;}
+.ta-d{position:absolute;top:calc(100% + 2px);left:0;right:0;background:#fff;border:1.5px solid var(--sb-accent);border-radius:0 0 8px 8px;z-index:9999;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.12);}
+.ta-o{padding:8px 12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid #f3f4f6;}
+.ta-o:last-child{border-bottom:none;}
+.ta-o:hover{background:var(--sb-accent-bg);}
+.ta-on{font-size:12px;color:#111827;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;}
+.ta-oc{font-size:11px;color:var(--sb-muted);white-space:nowrap;flex-shrink:0;}
+.ta-s{display:flex;align-items:center;gap:6px;background:var(--sb-accent-bg);border:1.5px solid var(--sb-accent-border);border-radius:7px;padding:5px 9px;margin-top:5px;}
+.ta-st{font-size:12px;color:var(--sb-accent);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;}
+.ta-x{background:none;border:none;color:#9ca3af;cursor:pointer;font-size:13px;line-height:1;}
+.ta-x:hover{color:var(--rust);}
+.af{display:none;flex-wrap:wrap;gap:5px;padding:8px 20px;background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0;}
+.afp{display:flex;align-items:center;gap:4px;background:var(--teal-dim);border:1px solid rgba(3,244,216,.3);border-radius:20px;padding:2px 9px;font-size:11px;color:var(--teal-dark);font-weight:600;}
+.afp button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:0 0 0 3px;line-height:1;}
+.btn-sb{background:var(--sb-accent);color:#fff;border:none;border-radius:8px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:7px;}
+.btn-sb:hover{background:#2452d4;}
+.btn-sb:disabled{opacity:.5;cursor:not-allowed;}
+.btn-sb.gap-sb{background:var(--rust);}
+.btn-sb.gap-sb:hover{background:#9e3518;}
+.btn-clr{background:transparent;color:var(--sb-muted);border:1.5px solid var(--sb-input-border);border-radius:8px;padding:7px;font-size:12px;cursor:pointer;width:100%;}
+.btn-clr:hover{border-color:#9ca3af;color:#374151;}
+.range-group{margin-top:4px;}
+.range-readout{display:flex;justify-content:space-between;margin-bottom:8px;}
+.range-val-box{background:#f3f4f6;border-radius:5px;padding:3px 8px;font-size:11px;font-weight:700;color:#111827;}
+.range-track{position:relative;height:4px;border-radius:2px;background:var(--sb-track);margin:14px 0 6px;}
+.range-fill{position:absolute;height:100%;border-radius:2px;background:var(--sb-accent);}
+.range-input{position:absolute;width:100%;height:4px;top:0;left:0;appearance:none;background:transparent;pointer-events:none;outline:none;}
+.range-input::-webkit-slider-thumb{appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;border:2.5px solid var(--sb-accent);cursor:pointer;pointer-events:all;box-shadow:0 1px 4px rgba(47,95,232,.3);}
+.range-vals{display:flex;justify-content:space-between;font-size:10px;color:var(--sb-muted);}
+
+/* MAIN */
+.main{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;}
+.gap-sum{display:none;flex-shrink:0;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--white);}
+.gsb{background:var(--bg);border-radius:var(--radius);padding:11px 14px;border:1px solid var(--border);border-left:4px solid var(--border);}
+.gsb.c{border-left-color:var(--rust);}
+.gsb.s{border-left-color:#d45a36;}
+.gsb.m{border-left-color:var(--brown);}
+.gsb-v{font-size:22px;font-weight:800;}
+.gsb.c .gsb-v{color:var(--rust);}
+.gsb.s .gsb-v{color:#d45a36;}
+.gsb.m .gsb-v{color:var(--brown);}
+.gsb-l{font-size:10px;color:var(--muted);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+.content-area{flex:1;display:flex;min-height:0;overflow:hidden;}
+
+/* MAP */
+.map-pane{flex:0 0 50%;display:flex;flex-direction:column;background:var(--white);border-right:1px solid var(--border);overflow:hidden;}
+.map-hdr{flex-shrink:0;padding:10px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.map-hdr-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);}
+.map-hdr-cnt{font-size:11px;font-weight:700;color:var(--teal-dark);}
+.map-canvas{flex:1;position:relative;overflow:hidden;background:#e8f0f7;}
+.map-canvas svg{position:absolute;top:0;left:0;width:100%;height:100%;}
+.map-empty{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--muted);pointer-events:none;}
+
+/* RESULTS */
+.results-pane{flex:0 0 50%;display:flex;flex-direction:column;overflow:hidden;position:relative;}
+.res-hdr{flex-shrink:0;padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--white);gap:10px;}
+.res-cnt{font-size:12px;color:var(--muted);}
+.res-cnt strong{color:#0D1B3E;}
+.res-hdr-actions{display:flex;align-items:center;gap:6px;}
+.cov-badge{font-size:10px;padding:3px 10px;border-radius:20px;font-weight:700;white-space:nowrap;}
+.bh{background:rgba(3,244,216,.12);color:var(--teal-dark);border:1px solid rgba(3,244,216,.3);}
+.bm{background:rgba(167,126,88,.12);color:var(--brown);border:1px solid rgba(167,126,88,.25);}
+.bl{background:rgba(186,63,29,.1);color:var(--rust);border:1px solid rgba(186,63,29,.25);}
+.bn{background:rgba(186,63,29,.15);color:var(--rust);border:1px solid rgba(186,63,29,.35);}
+.btn-hdr{background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--muted);padding:4px 10px;font-size:11px;cursor:pointer;font-weight:600;display:none;white-space:nowrap;}
+.btn-hdr:hover{border-color:var(--teal-dark);color:var(--teal-dark);}
+.res-list{flex:1;min-height:0;overflow-y:auto;background:var(--white);}
+.res-list::-webkit-scrollbar{width:6px;}
+.res-list::-webkit-scrollbar-track{background:#f1f5f9;}
+.res-list::-webkit-scrollbar-thumb{background:#b8cad8;border-radius:3px;}
+.res-list::-webkit-scrollbar-thumb:hover{background:#8aafc2;}
+
+/* PROVIDER ROW */
+.pr{display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s;gap:12px;}
+.pr:hover{background:#f7fafd;}
+.pr.selected{background:#f0f8ff;border-left:3px solid var(--teal);padding-left:13px;}
+.pr-avatar{flex-shrink:0;width:36px;height:36px;border-radius:50%;background:var(--sb-accent-bg);border:1.5px solid var(--sb-accent-border);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--sb-accent);}
+.pr-body{flex:1;min-width:0;}
+.pr-name{font-size:13px;font-weight:700;color:#0D1B3E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pr-spec{font-size:11px;color:var(--blue);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pr-meta{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pr-right{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.pr-dist{font-size:11px;color:var(--teal-dark);font-weight:700;background:var(--teal-dim);padding:2px 7px;border-radius:10px;border:1px solid rgba(3,244,216,.2);white-space:nowrap;}
+.pr-flags{display:flex;gap:3px;flex-wrap:wrap;justify-content:flex-end;}
+.flag{font-size:10px;padding:1px 6px;border-radius:3px;font-weight:700;}
+.fb{background:var(--teal-dim);color:var(--teal-dark);border:1px solid rgba(3,244,216,.2);}
+.fp{background:rgba(128,161,193,.12);color:#4a6f8f;border:1px solid rgba(128,161,193,.25);}
+.ft{background:rgba(186,63,29,.1);color:var(--rust);border:1px solid rgba(186,63,29,.2);}
+
+/* GAP CARDS */
+.gap-card{background:var(--white);border-bottom:1px solid var(--border);padding:13px 16px;border-left:4px solid var(--border);}
+.gap-card.sc{border-left-color:var(--rust);}
+.gap-card.ss{border-left-color:#d45a36;}
+.gap-card.sm{border-left-color:var(--brown);}
+.gap-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.gap-nm{font-weight:700;font-size:13px;color:#0D1B3E;}
+.gap-st{font-size:11px;color:var(--muted);margin-top:2px;}
+.sev-b{font-size:10px;padding:3px 9px;border-radius:4px;font-weight:700;white-space:nowrap;flex-shrink:0;}
+.sc .sev-b{background:rgba(186,63,29,.1);color:var(--rust);border:1px solid rgba(186,63,29,.25);}
+.ss .sev-b{background:rgba(212,90,54,.1);color:#d45a36;border:1px solid rgba(212,90,54,.25);}
+.sm .sev-b{background:rgba(167,126,88,.1);color:var(--brown);border:1px solid rgba(167,126,88,.2);}
+.gap-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px;}
+.gap-stat{background:var(--bg);border-radius:7px;padding:8px 10px;border:1px solid var(--border);}
+.gs-v{font-size:15px;font-weight:800;color:#0D1B3E;}
+.gs-l{font-size:10px;color:var(--muted);margin-top:1px;font-weight:600;}
+.gap-bw{margin-top:10px;}
+.gap-bl{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px;font-weight:600;}
+.gap-bb{height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.gap-bf{height:100%;border-radius:3px;}
+.sc .gap-bf{background:linear-gradient(90deg,var(--rust),#d45a36);}
+.ss .gap-bf{background:linear-gradient(90deg,#d45a36,var(--brown));}
+.sm .gap-bf{background:linear-gradient(90deg,var(--brown),#c49a76);}
+.gap-foot{display:flex;justify-content:space-between;align-items:center;margin-top:9px;}
+.gap-need{font-size:11px;color:var(--muted);}
+.gap-need strong{color:var(--rust);}
+.gap-act{font-size:11px;color:var(--teal-dark);cursor:pointer;font-weight:700;}
+.gap-act:hover{color:var(--teal);}
+
+/* LOAD MORE */
+.lm-row{flex-shrink:0;padding:10px;display:flex;align-items:center;justify-content:center;gap:8px;border-top:1px solid var(--border);background:var(--white);}
+.btn-lm{display:flex;align-items:center;gap:6px;padding:7px 20px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;}
+.btn-lm:hover{border-color:var(--teal-dark);color:var(--teal-dark);}
+.btn-lm:disabled{opacity:.4;cursor:not-allowed;}
+.pg-info{font-size:11px;color:var(--muted);}
+
+/* DRAWER */
+.drawer{position:absolute;top:0;right:0;bottom:0;width:420px;background:var(--white);border-left:1px solid var(--border);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .22s ease;box-shadow:-8px 0 32px rgba(13,27,62,.12);z-index:20;overflow:hidden;}
+.drawer.open{transform:translateX(0);}
+.dw-hd{flex-shrink:0;padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;background:var(--navy);}
+.dw-nm{font-weight:700;font-size:14px;color:#fff;}
+.dw-sub{font-size:11px;color:rgba(3,244,216,.8);margin-top:3px;}
+.dw-hd-actions{display:flex;gap:6px;align-items:flex-start;flex-shrink:0;}
+.dw-cls{background:none;border:none;color:rgba(255,255,255,.45);font-size:16px;cursor:pointer;padding:2px 6px;border-radius:4px;}
+.dw-cls:hover{background:rgba(255,255,255,.1);color:#fff;}
+.btn-ehr{display:flex;align-items:center;gap:4px;background:rgba(3,244,216,.15);border:1px solid rgba(3,244,216,.3);color:var(--teal);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;}
+.btn-ehr:hover{background:rgba(3,244,216,.25);}
+.dw-bd{flex:1;min-height:0;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:14px;}
+.dw-bd::-webkit-scrollbar{width:5px;}
+.dw-bd::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.ds{background:var(--bg);border-radius:var(--radius);padding:12px 13px;border:1px solid var(--border);}
+.ds h4{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:700;margin-bottom:8px;}
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;}
+.df .lbl{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+.df .val{font-size:12px;color:#0D1B3E;margin-top:1px;font-weight:500;}
+.d-flags{display:flex;gap:5px;flex-wrap:wrap;}
+.di-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);}
+.di-item:last-child{border-bottom:none;}
+.di-info{flex:1;min-width:0;}
+.di-code{font-size:10px;color:var(--teal-dark);font-weight:700;}
+.di-desc{font-size:11px;color:#0D1B3E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;}
+.di-bg{flex:0 0 55px;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.di-fill{height:100%;background:var(--teal);border-radius:3px;}
+.di-pct{font-size:10px;color:var(--muted);min-width:32px;text-align:right;font-weight:600;}
+.ehr-box{background:var(--navy);border-radius:var(--radius);padding:14px;border:1px solid rgba(3,244,216,.2);}
+.ehr-box h4{color:var(--teal);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;}
+.ehr-pre{font-family:'Courier New',monospace;font-size:10px;color:rgba(255,255,255,.8);line-height:1.6;white-space:pre-wrap;}
+.btn-copy-ehr{width:100%;margin-top:10px;background:rgba(3,244,216,.12);border:1px solid rgba(3,244,216,.25);color:var(--teal);border-radius:6px;padding:7px;font-size:12px;font-weight:700;cursor:pointer;}
+.btn-copy-ehr:hover{background:rgba(3,244,216,.22);}
+
+/* SAVED PANEL */
+.saved-panel{position:fixed;top:var(--nav-h);right:0;width:320px;height:calc(100vh - var(--nav-h));background:var(--white);border-left:1px solid var(--border);z-index:300;transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column;box-shadow:-8px 0 32px rgba(0,0,0,.12);}
+.saved-panel.open{transform:translateX(0);}
+.saved-hdr{flex-shrink:0;padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--navy);}
+.saved-hdr-title{color:#fff;font-size:14px;font-weight:700;}
+.saved-close{background:none;border:none;color:rgba(255,255,255,.5);font-size:16px;cursor:pointer;}
+.saved-body{flex:1;overflow-y:auto;padding:12px;}
+.saved-item{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:11px 13px;margin-bottom:8px;}
+.saved-item-name{font-size:13px;font-weight:700;color:#0D1B3E;}
+.saved-item-meta{font-size:11px;color:var(--muted);margin-top:3px;}
+.saved-item-pills{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;}
+.saved-pill{font-size:10px;background:var(--teal-dim);border:1px solid rgba(3,244,216,.2);color:var(--teal-dark);padding:1px 7px;border-radius:10px;font-weight:600;}
+.saved-item-actions{display:flex;gap:6px;margin-top:8px;}
+.btn-run-saved{flex:1;background:var(--teal);color:#0D1B3E;border:none;border-radius:6px;padding:6px;font-size:11px;font-weight:700;cursor:pointer;}
+.btn-del-saved{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:6px 10px;font-size:11px;cursor:pointer;}
+.btn-del-saved:hover{border-color:var(--rust);color:var(--rust);}
+.saved-empty{text-align:center;color:var(--muted);padding:40px 20px;font-size:13px;}
+
+/* UTILS */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin .6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.empty-s{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px;gap:10px;color:var(--muted);text-align:center;}
+.empty-s .ico{font-size:36px;}
+.empty-s .etitle{font-size:15px;font-weight:700;color:#0D1B3E;}
+.empty-s .esub{font-size:12px;line-height:1.7;}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+    <img src="norstella_400x400.png" alt="N" style="width:36px;height:36px;border-radius:6px;object-fit:cover;" onerror="this.outerHTML='<div style=\'width:36px;height:36px;border-radius:6px;background:var(--teal);display:flex;align-items:center;justify-content:center;font-weight:800;color:#0D1B3E;font-size:14px;\'>N</div>'">
+    <span class="brand">Norstella <span>LinQ Studio Provider Search</span></span>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" id="tab-proximity" onclick="switchTab('proximity')">📍 Proximity</button>
+    <button class="nav-tab" id="tab-diagnosis" onclick="switchTab('diagnosis')">🩺 Diagnosis</button>
+    <button class="nav-tab gap-tab" id="tab-gaps" onclick="switchTab('gaps')">⚠ Underserved Areas</button>
+  </div>
+  <div class="nav-right">
+    <button class="btn-saved" onclick="toggleSavedPanel()"><i class="fas fa-bookmark"></i> Saved Searches <span id="saved-count" style="background:var(--teal);color:#0D1B3E;border-radius:8px;padding:0 5px;font-size:10px;display:none;"></span></button>
+    <span class="nav-label">Data Analytics</span>
+    <div class="avatar">BM</div>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sb-sticky-head">
+      <div class="sb-head-left">
+        <i class="fas fa-sliders-h sb-head-icon"></i>
+        <span class="sb-head-title" id="sb-ti">Search Filters</span>
+        <span class="sb-filter-badge" id="sb-global-badge"></span>
+      </div>
+      <span class="sb-clear-all" id="sb-clear-all" onclick="clearAllForTab()">Clear all</span>
+    </div>
+    <div class="sb-body">
+
+      <!-- PROXIMITY -->
+      <div id="fp">
+        <div class="fs">
+          <div class="fs-head open" onclick="toggleFs(this)"><div class="fs-head-left"><i class="fas fa-map-marker-alt fs-head-icon"></i><span class="fs-head-title">Location</span></div><i class="fas fa-chevron-down fs-chev open"></i></div>
+          <div class="fs-body open">
+            <div class="fl">ZIP Code</div>
+            <input class="fi" id="p-zip" type="text" placeholder="e.g. 77001" maxlength="5" oninput="updPills()">
+            <div class="fl" style="margin-top:10px;">Search Radius</div>
+            <div class="radius-chips">
+              <div class="r-chip" onclick="setRadius(10)">10 mi</div>
+              <div class="r-chip active" onclick="setRadius(25)">25 mi</div>
+              <div class="r-chip" onclick="setRadius(50)">50 mi</div>
+              <div class="r-chip" onclick="setRadius(100)">100 mi</div>
+            </div>
+            <input type="hidden" id="p-rad" value="25">
+            <div class="fl" style="margin-top:10px;">— or search by State —</div>
+            <select class="fi" id="p-state" onchange="updPills()"><option value="">Select state…</option></select>
+          </div>
+        </div>
+        <div class="fs">
+          <div class="fs-head open" onclick="toggleFs(this)"><div class="fs-head-left"><i class="fas fa-stethoscope fs-head-icon"></i><span class="fs-head-title">Specialty</span></div><i class="fas fa-chevron-down fs-chev open"></i></div>
+          <div class="fs-body open">
+            <div class="fl">Primary Specialty</div>
+            <div class="ta-w">
+              <input class="fi" id="p-sp-in" type="text" placeholder="Search specialty…" autocomplete="off" oninput="onSp('p',this.value)" onfocus="onSp('p',this.value)">
+              <div class="ta-d" id="p-sp-d" style="display:none;"></div>
+            </div>
+            <div id="p-sp-s" style="display:none;" class="ta-s"><span class="ta-st" id="p-sp-t"></span><button class="ta-x" onclick="clrSp('p')">✕</button></div>
+          </div>
+        </div>
+        <div class="fs">
+          <div class="fs-head" onclick="toggleFs(this)"><div class="fs-head-left"><i class="fas fa-user-md fs-head-icon"></i><span class="fs-head-title">Provider Details</span></div><i class="fas fa-chevron-down fs-chev"></i></div>
+          <div class="fs-body">
+            <div class="fl">Credential</div>
+            <select class="fi" id="p-cred" onchange="updPills()"><option value="">Any Credential</option><option>MD</option><option>DO</option><option>NP</option><option>PA</option><option>APRN</option><option>DDS</option><option>DPM</option><option>OD</option></select>
+            <div class="fl" style="margin-top:8px;">Gender</div>
+            <select class="fi" id="p-gen" onchange="updPills()"><option value="">Any Gender</option><option value="M">Male</option><option value="F">Female</option></select>
+            <div class="fl" style="margin-top:8px;">City</div>
+            <input class="fi" id="p-city" type="text" placeholder="e.g. Houston" oninput="updPills()">
+          </div>
+        </div>
+        <div class="fs">
+          <div class="fs-head" onclick="toggleFs(this)"><div class="fs-head-left"><i class="fas fa-graduation-cap fs-head-icon"></i><span class="fs-head-title">Education</span></div><i class="fas fa-chevron-down fs-chev"></i></div>
+          <div class="fs-body">
+            <div class="fl">Graduation Year Range</div>
+            <div class="range-group">
+              <div class="range-readout">
+                <div><div style="font-size:9px;color:#9ca3af;margin-bottom:2px;">From</div><div class="range-val-box"><span id="gmin-lbl">1960</span></div></div>
+                <div style="text-align:right"><div style="font-size:9px;color:#9ca3af;margin-bottom:2px;">To</div><div class="range-val-box"><span id="gmax-lbl">2024</span></div></div>
+              </div>
+              <div class="range-track"><div class="range-fill" id="grad-fill"></div><input type="range" class="range-input" id="grad-min" min="1960" max="2024" value="1960" oninput="onGrad()"><input type="range" class="range-input" id="grad-max" min="1960" max="2024" value="2024" oninput="onGrad()"></div>
+              <div class="range-vals"><span>1960</span><span>2024</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="fs">
+          <div class="fs-head open" onclick="toggleFs(this)"><div class="fs-head-left"><i class="fas fa-certificate fs-head-icon"></i><span class="fs-head-title">Qualifications</span></div><i class="fas fa-chevron-down fs-chev open"></i></div>
+          <div class="fs-body open">
+            <div class="cc">
+              <div class="cr" id="c-board" onclick="tChip('c-board','is_board_certified')"><i class="fas fa-award ci"></i>Board Certified<div class="ck"><i class="fas fa-check cki"></i></div></div>
+              <div class="cr" id="c-pc" onclick="tChip('c-pc','is_primary_care')"><i class="fas fa-heartbeat ci"></i>Primary Care<div class="ck"><i class="fas fa-check cki"></i></div></div>
+              <div class="cr" id="c-trial" onclick="tChip('c-trial','is_clinical_trial')"><i class="fas fa-flask ci"></i>Clinical Trial PI<div class="ck"><i class="fas fa-check cki"></i></div></div>
+              <div class="cr" id="c-metro" onclick="tChip('c-metro','is_metro')"><i class="fas fa-city ci"></i>Metro Area Only<div class="ck"><i class="fas fa-check cki"></i></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DIAGNOSIS -->
+      <div id="fd" style="display:none;">
+        <div class="fs">
+          <div class="fs-head open" onclick="toggleFs(this)"><div class="fs-head-left"><i class="fas fa-stethoscope fs-head-icon"></i><span class="fs-head-title">Diagnosis / ICD-10</span></div><i class="fas fa-chevron-down fs-chev open"></i></div>
+          <div class="fs-body open">
+            <div class="fl">Code or description</div>
+            <div class="ta-w">
+              <input class="fi" id="d-icd" type="text" placeholder="e.g. diabetes, E11…" autocomplete="off">
+              <div class="ta-d" id="icd-d" style="display:none;"></div>
+            </div>
+            <div id="icd-s" style="display:none;" class="ta-s"><span class="ta-st" id="icd-st"></span><button class="ta-x" onclick="clrIcd()">✕</button></div>
+          </div>
+        </div>
+        <div class="fs">
+          <div class="fs-head open" onclick="toggleFs(this)"><div class="fs-head-left"><i class="fas fa-map-marker-alt fs-head-icon"></i><span class="fs-head-title">Location &amp; Specialty</span></div><i class="fas fa-chevron-down fs-chev open"></i></div>
+          <div class="fs-body open">
+            <div class="fl">State</div>
+            <select class="fi" id="d-state" style="margin-bottom:10px;"><option value="">Select state…</option></select>
+            <div class="fl">Specialty (optional)</div>
+            <div class="ta-w">
+              <input class="fi" id="d-sp-in" type="text" placeholder="Filter by specialty…" autocomplete="off" oninput="onSp('d',this.value)" onfocus="onSp('d',this.value)">
+              <div class="ta-d" id="d-sp-d" style="display:none;"></div>
+            </div>
+            <div id="d-sp-s" style="display:none;" class="ta-s"><span class="ta-st" id="d-sp-t"></span><button class="ta-x" onclick="clrSp('d')">✕</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GAPS -->
+      <div id="fg" style="display:none;">
+        <div class="fs">
+          <div class="fs-head open" onclick="toggleFs(this)"><div class="fs-head-left"><i class="fas fa-map fs-head-icon"></i><span class="fs-head-title">Geography</span></div><i class="fas fa-chevron-down fs-chev open"></i></div>
+          <div class="fs-body open">
+            <div class="fl">State (optional)</div>
+            <select class="fi" id="g-state" style="margin-bottom:10px;"><option value="">All States</option></select>
+            <div class="fl">Specialty</div>
+            <div class="ta-w">
+              <input class="fi" id="g-sp-in" type="text" placeholder="e.g. Cardiology…" autocomplete="off" oninput="onSp('g',this.value)" onfocus="onSp('g',this.value)">
+              <div class="ta-d" id="g-sp-d" style="display:none;"></div>
+            </div>
+            <div id="g-sp-s" style="display:none;" class="ta-s"><span class="ta-st" id="g-sp-t"></span><button class="ta-x" onclick="clrSp('g')">✕</button></div>
+          </div>
+        </div>
+        <div class="fs">
+          <div class="fs-head open" onclick="toggleFs(this)"><div class="fs-head-left"><i class="fas fa-exclamation-triangle fs-head-icon"></i><span class="fs-head-title">Severity Level</span></div><i class="fas fa-chevron-down fs-chev open"></i></div>
+          <div class="fs-body open">
+            <div class="cc">
+              <div class="cr sev-c on" id="sv-c" onclick="tSev('c')"><i class="fas fa-circle ci" style="color:#ba3f1d;"></i>Critical (&lt;30%)<div class="ck"><i class="fas fa-check cki"></i></div></div>
+              <div class="cr sev-s on" id="sv-s" onclick="tSev('s')"><i class="fas fa-circle ci" style="color:#d45a36;"></i>Severe (30–50%)<div class="ck"><i class="fas fa-check cki"></i></div></div>
+              <div class="cr sev-m on" id="sv-m" onclick="tSev('m')"><i class="fas fa-circle ci" style="color:#a77e58;"></i>Moderate (50–80%)<div class="ck"><i class="fas fa-check cki"></i></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="fs">
+          <div class="fs-head open" onclick="toggleFs(this)"><div class="fs-head-left"><i class="fas fa-list-ol fs-head-icon"></i><span class="fs-head-title">Results Limit</span></div><i class="fas fa-chevron-down fs-chev open"></i></div>
+          <div class="fs-body open"><select class="fi" id="g-lim"><option value="25">25 areas</option><option value="50" selected>50 areas</option><option value="100">100 areas</option><option value="200">200 areas</option></select></div>
+        </div>
+      </div>
+
+    </div><!-- /sb-body -->
+    <div class="sb-footer">
+      <button class="btn-sb" id="btn-p" onclick="runProx()"><i class="fas fa-search"></i> Search Providers</button>
+      <button class="btn-sb" id="btn-d" style="display:none;" onclick="console.log('diag btn clicked'); runDiag()"><i class="fas fa-search"></i> Search by Diagnosis</button>
+      <button class="btn-sb gap-sb" id="btn-g" style="display:none;" onclick="runGaps()"><i class="fas fa-search"></i> Analyze Gaps</button>
+      <button class="btn-clr" onclick="clearAllForTab()">Clear Filters</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="af" id="af"></div>
+    <div class="gap-sum" id="gap-sum">
+      <div class="gsb c"><div class="gsb-v" id="gs-c">—</div><div class="gsb-l">🔴 Critical Areas</div></div>
+      <div class="gsb s"><div class="gsb-v" id="gs-s">—</div><div class="gsb-l">🟠 Severe Shortages</div></div>
+      <div class="gsb m"><div class="gsb-v" id="gs-m">—</div><div class="gsb-l">🟡 Moderate Gaps</div></div>
+    </div>
+    <div class="content-area">
+
+      <!-- MAP PANE -->
+      <div class="map-pane">
+        <div class="map-hdr">
+          <span class="map-hdr-title" id="map-lbl">Provider Map</span>
+          <span class="map-hdr-cnt" id="map-cnt"></span>
+        </div>
+        <div class="map-canvas" id="map-canvas">
+          <div class="map-empty" id="map-empty">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#c4d4e4" stroke-width="1.2"><circle cx="12" cy="11" r="3"/><path d="M17.657 16.657L13.414 20.9a2 2 0 0 1-2.827 0l-4.244-4.243a8 8 0 1 1 11.314 0z"/></svg>
+            <span style="font-size:12px;">Run a search to see providers</span>
+          </div>
+          <svg id="map-svg" style="display:none;"></svg>
+        </div>
+      </div>
+
+      <!-- RESULTS PANE -->
+      <div class="results-pane">
+        <div class="res-hdr">
+          <div class="res-cnt" id="res-cnt">Run a search to find providers</div>
+          <div class="res-hdr-actions">
+            <div id="cov-b"></div>
+            <button class="btn-hdr" id="btn-save-search" onclick="saveCurrentSearch()">🔖 Save Search</button>
+          </div>
+        </div>
+        <div class="res-list" id="res-list">
+          <div class="empty-s"><div class="ico">🏥</div><div class="etitle">Find the right provider</div><div class="esub">Search by ZIP or state, find providers treating a specific diagnosis, or analyze underserved areas.</div></div>
+        </div>
+        <div class="lm-row" id="lm-row" style="display:none;">
+          <button class="btn-lm" id="btn-lm" onclick="loadMore()"><span class="spinner" id="lm-spin" style="display:none;"></span><span id="lm-lbl">Load more</span></button>
+          <div class="pg-info" id="pg-info"></div>
+        </div>
+        <div class="drawer" id="drawer">
+          <div class="dw-hd">
+            <div style="flex:1;min-width:0;"><div class="dw-nm" id="dw-nm">—</div><div class="dw-sub" id="dw-sub">—</div></div>
+            <div class="dw-hd-actions">
+              <button class="btn-ehr" onclick="showEhrExport()">📋 EHR Export</button>
+              <button class="dw-cls" onclick="closeDrawer()">✕</button>
+            </div>
+          </div>
+          <div class="dw-bd" id="dw-bd"></div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div class="saved-panel" id="saved-panel">
+  <div class="saved-hdr"><div class="saved-hdr-title">🔖 Saved Searches</div><button class="saved-close" onclick="toggleSavedPanel()">✕</button></div>
+  <div class="saved-body" id="saved-body"></div>
+</div>
+
+<script>
+var API = '/api';
+var SC  = {c:'#ba3f1d', s:'#d45a36', m:'#a77e58'};
+var GRAD_MIN = 1960, GRAD_MAX = 2024;
+var curTab = 'proximity';
+var chips = {}, sevs = {c:true, s:true, m:true};
+var selIcd = null, selSp = {p:null, d:null, g:null}, allSp = [];
+var icdTmr = null;
+var pgState = {cursor:null, hasMore:false, loading:false, loaded:0, total:null, params:null, mode:null};
+var savedSearches = [], currentDrawerProvider = null;
+var geoCache = null;
+
+var STATE_CENTERS = {
+  AL:[32.8,-86.8],AK:[64.2,-153.4],AZ:[34.3,-111.1],AR:[34.8,-92.2],CA:[36.8,-119.4],
+  CO:[39.1,-105.4],CT:[41.6,-72.7],DE:[38.9,-75.5],FL:[27.8,-81.6],GA:[32.2,-83.4],
+  HI:[20.3,-156.3],ID:[44.4,-114.6],IL:[40.0,-89.2],IN:[39.8,-86.1],IA:[42.0,-93.2],
+  KS:[38.5,-98.4],KY:[37.5,-85.3],LA:[31.1,-91.9],ME:[45.3,-69.0],MD:[39.0,-76.8],
+  MA:[42.3,-71.8],MI:[44.3,-85.4],MN:[46.4,-93.1],MS:[32.7,-89.7],MO:[38.4,-92.5],
+  MT:[47.0,-110.5],NE:[41.5,-99.9],NV:[39.3,-116.6],NH:[43.7,-71.6],NJ:[40.1,-74.5],
+  NM:[34.8,-106.2],NY:[42.9,-75.5],NC:[35.5,-79.4],ND:[47.5,-100.5],OH:[40.3,-82.8],
+  OK:[35.6,-97.5],OR:[44.1,-120.5],PA:[40.9,-77.8],RI:[41.7,-71.5],SC:[33.8,-80.9],
+  SD:[44.4,-100.2],TN:[35.8,-86.4],TX:[31.1,-97.9],UT:[39.3,-111.1],VT:[44.1,-72.7],
+  VA:[37.8,-78.2],WA:[47.4,-120.4],WV:[38.6,-80.6],WI:[44.3,-89.8],WY:[43.0,-107.6],DC:[38.9,-77.0]
+};
+
+/* ── API ── */
+function apiFetch(path) {
+  return fetch(API + path).then(function(r) {
+    return r.json().then(function(d) {
+      if (!r.ok) throw new Error((d.errors && d.errors[0] && d.errors[0].detail) || 'HTTP ' + r.status);
+      return d;
+    });
+  });
+}
+
+/* ── INIT ── */
+function init() {
+  initGrad();
+  apiFetch('/v1/lookup/states').then(function(d) {
+    var states = d.data || [];
+    ['p-state','d-state','g-state'].forEach(function(id) {
+      var el = document.getElementById(id);
+      states.forEach(function(s) {
+        var o = document.createElement('option');
+        o.value = s.state_code;
+        o.textContent = s.state_name + ' (' + (s.provider_count || 0).toLocaleString() + ')';
+        el.appendChild(o);
+      });
+    });
+  }).catch(function() {});
+  apiFetch('/v1/lookup/specialties?limit=500').then(function(d) {
+    if (d.data && d.data.length) allSp = d.data;
+  }).catch(function() {});
+  // Wire ICD input here so it's guaranteed to be attached
+  document.getElementById('d-icd').addEventListener('input', function() {
+    onIcd(this.value);
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.ta-w')) document.querySelectorAll('.ta-d').forEach(function(d) { d.style.display = 'none'; });
+    if (!e.target.closest('.saved-panel') && !e.target.closest('.btn-saved')) document.getElementById('saved-panel').classList.remove('open');
+  });
+}
+
+/* ── TABS ── */
+function clearResults() {
+  document.getElementById('res-list').innerHTML = '<div class="empty-s"><div class="ico">🏥</div><div class="etitle">Find the right provider</div><div class="esub">Search by ZIP or state, find providers treating a specific diagnosis, or analyze underserved areas.</div></div>';
+  document.getElementById('res-cnt').textContent = 'Run a search to find providers';
+  document.getElementById('cov-b').innerHTML = '';
+  document.getElementById('lm-row').style.display = 'none';
+  document.getElementById('btn-save-search').style.display = 'none';
+  document.getElementById('map-svg').style.display = 'none';
+  document.getElementById('map-empty').style.display = 'flex';
+  document.getElementById('map-lbl').textContent = 'Provider Map';
+  document.getElementById('map-cnt').textContent = '';
+  closeDrawer();
+}
+
+function switchTab(t) {
+  curTab = t;
+  ['proximity','diagnosis','gaps'].forEach(function(x) {
+    document.getElementById('tab-' + x).classList.toggle('active', x === t);
+    document.getElementById('f' + x[0]).style.display = x === t ? '' : 'none';
+  });
+  document.getElementById('sb-ti').textContent = t === 'gaps' ? 'Gap Analysis Filters' : 'Search Filters';
+  document.getElementById('gap-sum').style.display = t === 'gaps' ? 'grid' : 'none';
+  document.getElementById('btn-p').style.display = t === 'proximity' ? '' : 'none';
+  document.getElementById('btn-d').style.display = t === 'diagnosis' ? '' : 'none';
+  document.getElementById('btn-g').style.display = t === 'gaps' ? '' : 'none';
+  clearResults();
+  updPills();
+}
+
+function toggleFs(hdr) {
+  var body = hdr.nextElementSibling, chev = hdr.querySelector('.fs-chev');
+  var o = body.classList.toggle('open');
+  if (chev) chev.classList.toggle('open', o);
+}
+
+function setRadius(val) {
+  document.getElementById('p-rad').value = val;
+  document.querySelectorAll('.r-chip').forEach(function(c) { c.classList.toggle('active', parseInt(c.textContent) === val); });
+  updPills();
+}
+
+function tChip(id, key) { chips[key] = !chips[key]; document.getElementById(id).classList.toggle('on', !!chips[key]); updPills(); }
+function tSev(k) { sevs[k] = !sevs[k]; document.getElementById('sv-' + k).classList.toggle('on', sevs[k]); }
+
+/* ── SPECIALTY TYPEAHEAD ── */
+function onSp(ctx, val) {
+  var drop = document.getElementById(ctx + '-sp-d');
+  var q = val ? val.toLowerCase().trim() : '';
+  var list = q.length < 1 ? allSp.slice(0, 30) : allSp.filter(function(s) { return s.specialty.toLowerCase().indexOf(q) !== -1; }).slice(0, 30);
+  if (!list.length) { drop.style.display = 'none'; return; }
+  drop.innerHTML = list.map(function(s) {
+    var safe = s.specialty.replace(/'/g, "\\'");
+    return '<div class="ta-o" onclick="pickSp(\'' + ctx + '\',\'' + safe + '\',' + (s.provider_count || 0) + ')"><span class="ta-on">' + s.specialty + '</span><span class="ta-oc">' + (s.provider_count || 0).toLocaleString() + '</span></div>';
+  }).join('');
+  drop.style.display = 'block';
+}
+function pickSp(ctx, name, count) {
+  selSp[ctx] = name;
+  document.getElementById(ctx + '-sp-in').value = '';
+  document.getElementById(ctx + '-sp-in').placeholder = name;
+  document.getElementById(ctx + '-sp-s').style.display = 'flex';
+  document.getElementById(ctx + '-sp-t').textContent = name + ' (' + (count || 0).toLocaleString() + ')';
+  document.getElementById(ctx + '-sp-d').style.display = 'none';
+  updPills();
+}
+function clrSp(ctx) {
+  selSp[ctx] = null;
+  document.getElementById(ctx + '-sp-in').value = '';
+  document.getElementById(ctx + '-sp-in').placeholder = ctx === 'g' ? 'e.g. Cardiology…' : ctx === 'p' ? 'Search specialty…' : 'Filter by specialty…';
+  document.getElementById(ctx + '-sp-s').style.display = 'none';
+  updPills();
+}
+
+/* ── ICD TYPEAHEAD ── */
+function onIcd(val) {
+  clearTimeout(icdTmr);
+  var drop = document.getElementById('icd-d');
+  if (val.length < 2) { drop.style.display = 'none'; return; }
+  icdTmr = setTimeout(function() {
+    apiFetch('/v1/diagnosis/search?q=' + encodeURIComponent(val) + '&limit=10').then(function(d) {
+      var items = d.data || [];
+      if (!items.length) { drop.style.display = 'none'; return; }
+      drop.innerHTML = '';
+      items.forEach(function(i) {
+        var div = document.createElement('div');
+        div.className = 'ta-o';
+        div.innerHTML = '<span class="ta-on" style="text-transform:none;"><strong style="color:var(--sb-accent)">' + i.icd10_code + '</strong> — ' + i.description + '</span>';
+        div.addEventListener('click', function() { pickIcd(i.icd10_code, i.description); });
+        drop.appendChild(div);
+      });
+      drop.style.display = 'block';
+    }).catch(function() {});
+  }, 260);
+}
+function pickIcd(code, desc) {
+  selIcd = {code: code, desc: desc};
+  document.getElementById('d-icd').value = '';
+  document.getElementById('d-icd').placeholder = code + ' — ' + desc;
+  document.getElementById('icd-s').style.display = 'flex';
+  document.getElementById('icd-st').textContent = code + ': ' + desc;
+  document.getElementById('icd-d').style.display = 'none';
+  updPills();
+}
+function clrIcd() {
+  selIcd = null;
+  document.getElementById('d-icd').value = '';
+  document.getElementById('d-icd').placeholder = 'e.g. diabetes, E11…';
+  document.getElementById('icd-s').style.display = 'none';
+  updPills();
+}
+
+/* ── GRAD SLIDER ── */
+function initGrad() { updGrad(); }
+function onGrad() {
+  var mn = parseInt(document.getElementById('grad-min').value), mx = parseInt(document.getElementById('grad-max').value);
+  if (mn > mx) { var t = mn; mn = mx; mx = t; document.getElementById('grad-min').value = mn; document.getElementById('grad-max').value = mx; }
+  updGrad(); updPills();
+}
+function updGrad() {
+  var mn = parseInt(document.getElementById('grad-min').value), mx = parseInt(document.getElementById('grad-max').value);
+  document.getElementById('gmin-lbl').textContent = mn;
+  document.getElementById('gmax-lbl').textContent = mx;
+  var p1 = (mn - GRAD_MIN) / (GRAD_MAX - GRAD_MIN) * 100, p2 = (mx - GRAD_MIN) / (GRAD_MAX - GRAD_MIN) * 100;
+  document.getElementById('grad-fill').style.left = p1 + '%';
+  document.getElementById('grad-fill').style.width = (p2 - p1) + '%';
+}
+function getGrad() {
+  var mn = parseInt(document.getElementById('grad-min').value), mx = parseInt(document.getElementById('grad-max').value);
+  return (mn === GRAD_MIN && mx === GRAD_MAX) ? {} : {graduation_year_min: mn, graduation_year_max: mx};
+}
+
+/* ── ACTIVE PILLS ── */
+function updPills() {
+  updGlobalBadge();
+  var bar = document.getElementById('af'), pills = [];
+  if (curTab === 'proximity') {
+    var zip = document.getElementById('p-zip').value.trim(), st = document.getElementById('p-state').value, rad = document.getElementById('p-rad').value;
+    if (zip) pills.push({label: '📍 ' + zip + ' · ' + rad + 'mi'});
+    else if (st) pills.push({label: '🗺 ' + st});
+    if (selSp.p) pills.push({label: selSp.p, key: 'sp-p'});
+    var cred = document.getElementById('p-cred').value; if (cred) pills.push({label: cred, key: 'cred'});
+    var g = getGrad(); if (g.graduation_year_min) pills.push({label: 'Grad: ' + g.graduation_year_min + '–' + g.graduation_year_max, key: 'grad'});
+    var cm = {is_board_certified: 'Board Certified', is_primary_care: 'Primary Care', is_clinical_trial: 'Clinical Trial PI', is_metro: 'Metro'};
+    Object.keys(chips).forEach(function(k) { if (chips[k] && cm[k]) pills.push({label: cm[k], key: 'chip-' + k}); });
+  } else if (curTab === 'diagnosis') {
+    if (selIcd) pills.push({label: selIcd.code, key: 'icd'});
+    var dst = document.getElementById('d-state').value; if (dst) pills.push({label: '📍 ' + dst});
+    if (selSp.d) pills.push({label: selSp.d, key: 'sp-d'});
+  } else {
+    var gst = document.getElementById('g-state').value; if (gst) pills.push({label: '📍 ' + gst});
+    if (selSp.g) pills.push({label: selSp.g, key: 'sp-g'});
+  }
+  if (!pills.length) { bar.style.display = 'none'; return; }
+  bar.style.display = 'flex';
+  bar.innerHTML = pills.map(function(p) {
+    var btn = p.key ? '<button onclick="rmPill(\'' + p.key + '\')">✕</button>' : '';
+    return '<div class="afp">' + p.label + btn + '</div>';
+  }).join('');
+}
+function updGlobalBadge() {
+  var count = 0;
+  if (curTab === 'proximity') {
+    if (document.getElementById('p-zip').value.trim()) count++;
+    if (document.getElementById('p-state').value) count++;
+    if (selSp.p) count++;
+    if (document.getElementById('p-cred').value) count++;
+    count += Object.keys(chips).filter(function(k) { return chips[k]; }).length;
+    var g = getGrad(); if (g.graduation_year_min) count++;
+  } else if (curTab === 'diagnosis') {
+    if (selIcd) count++; if (document.getElementById('d-state').value) count++; if (selSp.d) count++;
+  } else {
+    if (document.getElementById('g-state').value) count++; if (selSp.g) count++;
+  }
+  var badge = document.getElementById('sb-global-badge'), clr = document.getElementById('sb-clear-all');
+  if (count > 0) { badge.textContent = count; badge.classList.add('vis'); clr.style.display = 'block'; }
+  else { badge.classList.remove('vis'); clr.style.display = 'none'; }
+}
+function rmPill(key) {
+  if (key === 'sp-p') { clrSp('p'); return; }
+  if (key === 'sp-d') { clrSp('d'); return; }
+  if (key === 'sp-g') { clrSp('g'); return; }
+  if (key === 'icd')  { clrIcd(); return; }
+  if (key === 'cred') { document.getElementById('p-cred').value = ''; updPills(); return; }
+  if (key === 'grad') { document.getElementById('grad-min').value = GRAD_MIN; document.getElementById('grad-max').value = GRAD_MAX; updGrad(); updPills(); return; }
+  if (key.indexOf('chip-') === 0) {
+    var k = key.replace('chip-', ''); chips[k] = false;
+    var m = {is_board_certified:'c-board', is_primary_care:'c-pc', is_clinical_trial:'c-trial', is_metro:'c-metro'};
+    if (m[k]) document.getElementById(m[k]).classList.remove('on');
+    updPills();
+  }
+}
+function clearAllForTab() {
+  if (curTab === 'proximity') {
+    document.getElementById('p-zip').value = ''; document.getElementById('p-state').value = '';
+    document.getElementById('p-cred').value = ''; document.getElementById('p-gen').value = ''; document.getElementById('p-city').value = '';
+    document.getElementById('grad-min').value = GRAD_MIN; document.getElementById('grad-max').value = GRAD_MAX; updGrad();
+    clrSp('p'); chips = {};
+    ['c-board','c-pc','c-trial','c-metro'].forEach(function(id) { document.getElementById(id).classList.remove('on'); });
+  } else if (curTab === 'diagnosis') {
+    clrIcd(); clrSp('d'); document.getElementById('d-state').value = '';
+  } else {
+    document.getElementById('g-state').value = ''; clrSp('g');
+    sevs = {c:true, s:true, m:true}; ['c','s','m'].forEach(function(k) { document.getElementById('sv-' + k).classList.add('on'); });
+  }
+  clearResults();
+  updPills();
+}
+
+/* ── BUILD PARAMS ── */
+function buildProxParams() {
+  var zip = document.getElementById('p-zip').value.trim(), st = document.getElementById('p-state').value;
+  if (!zip && !st) { alert('Enter a ZIP code or select a state.'); return null; }
+  var p = new URLSearchParams({limit: 50});
+  if (zip) { p.set('zip', zip); p.set('radius_miles', document.getElementById('p-rad').value); }
+  else { p.set('state', st); }
+  if (selSp.p) p.set('primary_specialty', selSp.p);
+  var cred = document.getElementById('p-cred').value; if (cred) p.set('credential', cred);
+  var gen  = document.getElementById('p-gen').value;  if (gen)  p.set('gender', gen);
+  var city = document.getElementById('p-city').value.trim(); if (city) p.set('city', city);
+  var g = getGrad();
+  if (g.graduation_year_min) { p.set('graduation_year_min', g.graduation_year_min); p.set('graduation_year_max', g.graduation_year_max); }
+  if (chips.is_board_certified) p.set('is_board_certified', 'true');
+  return p;
+}
+
+/* ── SEARCHES ── */
+function runProx() {
+  var params = buildProxParams(); if (!params) return;
+  setLoading(true); closeDrawer(); updPills();
+  pgState = {cursor:null, hasMore:false, loading:false, loaded:0, total:null, params:params, mode:'prox'};
+  var zip = document.getElementById('p-zip').value.trim();
+  var st  = document.getElementById('p-state').value;
+  var rad = document.getElementById('p-rad').value;
+  Promise.all([
+    apiFetch('/v1/providers?' + params).catch(function(e) { return {data:[], _err:e.message}; }),
+    zip ? apiFetch('/v1/distance/coverage?origin_zip=' + zip + '&radius_miles=' + rad + (selSp.p ? '&specialty=' + encodeURIComponent(selSp.p) : '')).catch(function() { return null; }) : Promise.resolve(null)
+  ]).then(function(res) {
+    var d = res[0], covData = res[1] ? res[1].data : null;
+    if (d._err) { showErr('API error: ' + d._err); setLoading(false); return; }
+    var providers = d.data || [];
+    if (chips.is_primary_care)   providers = providers.filter(function(p) { return p.is_primary_care; });
+    if (chips.is_clinical_trial) providers = providers.filter(function(p) { return p.is_clinical_trial; });
+    if (chips.is_metro)          providers = providers.filter(function(p) { return p.is_metro; });
+    pgState.cursor  = (d.paging && d.paging.next_cursor) || null;
+    pgState.hasMore = (d.paging && d.paging.has_more) || false;
+    pgState.total   = (d.paging && d.paging.total_count) || null;
+    pgState.loaded  = providers.length;
+    var stLabel = st ? document.getElementById('p-state').options[document.getElementById('p-state').selectedIndex].text.split('(')[0].trim() : '';
+    var label = zip ? '<strong>' + providers.length + '</strong> providers within ' + rad + ' mi of ' + zip : '<strong>' + providers.length + '</strong> providers in ' + stLabel;
+    renderProviders(providers, label, true);
+    renderCovBadge(covData);
+    drawMap(providers, zip || null, st || null, parseInt(rad), false);
+    document.getElementById('btn-save-search').style.display = 'block';
+    setLoading(false);
+  }).catch(function(e) { showErr(e.message || 'Search failed'); setLoading(false); });
+}
+
+function runDiag() {
+  console.log('[Diag] runDiag called. selIcd=', JSON.stringify(selIcd), 'state=', document.getElementById('d-state').value, 'spec=', selSp.d);
+  if (!selIcd) { alert('Select a diagnosis first.'); return; }
+  var state = document.getElementById('d-state').value, spec = selSp.d;
+  if (!state && !spec) { alert('Select a state or specialty to anchor the search.'); return; }
+  setLoading(true); closeDrawer(); updPills();
+
+  // Use query-param endpoint to avoid dot-in-path routing issues
+  var p = new URLSearchParams({icd10: selIcd.code, limit: 50});
+  if (state) p.set('state', state);
+  if (spec)  p.set('specialty', spec);
+  pgState = {cursor:null, hasMore:false, loading:false, loaded:0, total:null, params:p, mode:'diag'};
+
+  apiFetch('/v1/diagnosis/providers?' + p)
+    .then(function(d) {
+      var providers = d.data || [];
+      pgState.cursor  = (d.paging && d.paging.next_cursor) || null;
+      pgState.hasMore = (d.paging && d.paging.has_more) || false;
+      pgState.loaded  = providers.length;
+      renderProviders(providers, '<strong>' + providers.length + '</strong> providers treating <span style="color:var(--teal-dark)">' + selIcd.code + '</span>', true);
+      document.getElementById('cov-b').innerHTML = '';
+      drawMap(providers, null, state || null, 0, false);
+      document.getElementById('btn-save-search').style.display = 'block';
+      setLoading(false);
+    }).catch(function(e) { showErr(e.message || 'Diagnosis search failed'); setLoading(false); });
+}
+
+function runGaps() {
+  var onSevs = Object.keys(sevs).filter(function(k) { return sevs[k]; });
+  if (!onSevs.length) { alert('Select at least one severity level.'); return; }
+  setLoading(true); closeDrawer(); updPills();
+  var state = document.getElementById('g-state').value, spec = selSp.g, limit = document.getElementById('g-lim').value;
+  var sevMap = {c:'critical', s:'severe', m:'moderate'};
+  var base = new URLSearchParams({limit: limit}); if (state) base.set('state', state); if (spec) base.set('specialty', spec);
+  var promise = onSevs.length === 3
+    ? apiFetch('/v1/analytics/gaps?' + base).then(function(d) { return d.data || []; })
+    : Promise.all(onSevs.map(function(sv) { var p = new URLSearchParams(base); p.set('severity', sevMap[sv]); return apiFetch('/v1/analytics/gaps?' + p).then(function(d) { return d.data || []; }); }))
+        .then(function(results) { var seen = {}, all = []; results.forEach(function(arr) { arr.forEach(function(g) { var k = g.county_fips || g.county_name; if (!seen[k]) { seen[k] = true; all.push(g); } }); }); return all; });
+  promise.then(function(gaps) {
+    var cnts = {critical:0, severe:0, moderate:0};
+    gaps.forEach(function(g) { if (cnts[g.severity] !== undefined) cnts[g.severity]++; });
+    document.getElementById('gs-c').textContent = cnts.critical;
+    document.getElementById('gs-s').textContent = cnts.severe;
+    document.getElementById('gs-m').textContent = cnts.moderate;
+    renderGaps(gaps, state, spec);
+    drawMap(gaps, null, null, 0, true);
+    setLoading(false);
+  }).catch(function(e) { showErr(e.message || 'Gap analysis failed'); setLoading(false); });
+}
+
+function loadMore() {
+  if (pgState.loading || !pgState.hasMore) return;
+  pgState.loading = true;
+  var btn = document.getElementById('btn-lm'); btn.disabled = true;
+  document.getElementById('lm-spin').style.display = 'inline-block';
+  document.getElementById('lm-lbl').textContent = 'Loading…';
+  var p = new URLSearchParams(pgState.params); p.set('cursor', pgState.cursor);
+  var url = pgState.mode === 'prox' ? '/v1/providers?' + p : '/v1/diagnosis/providers?' + p;
+  apiFetch(url).then(function(d) {
+    var providers = d.data || [];
+    pgState.cursor  = (d.paging && d.paging.next_cursor) || null;
+    pgState.hasMore = (d.paging && d.paging.has_more) || false;
+    pgState.loaded += providers.length;
+    appendProviders(providers); updPaginator();
+  }).catch(function() {}).finally(function() {
+    pgState.loading = false; btn.disabled = false;
+    document.getElementById('lm-spin').style.display = 'none';
+    document.getElementById('lm-lbl').textContent = 'Load more';
+  });
+}
+function updPaginator() {
+  var row = document.getElementById('lm-row');
+  if (!pgState.hasMore) { row.style.display = 'none'; return; }
+  row.style.display = 'flex';
+  document.getElementById('pg-info').textContent = pgState.loaded.toLocaleString() + ' loaded' + (pgState.total ? ' of ~' + pgState.total.toLocaleString() : '');
+}
+
+/* ── RENDER PROVIDERS ── */
+function renderProviders(providers, label, clearList) {
+  document.getElementById('res-cnt').innerHTML = label;
+  var list = document.getElementById('res-list');
+  if (clearList) list.innerHTML = '';
+  if (!providers.length && clearList) {
+    list.innerHTML = '<div class="empty-s"><div class="ico">🔍</div><div class="etitle">No results found</div><div class="esub">Try adjusting filters or expanding radius.</div></div>';
+    return;
+  }
+  appendProviders(providers); updPaginator();
+}
+
+function appendProviders(providers) {
+  var list = document.getElementById('res-list');
+  providers.forEach(function(p) {
+    var name = [p.prefix, p.first_name, p.last_name].filter(Boolean).join(' ') || 'Unknown Provider';
+    var initials = [(p.first_name || '?')[0], (p.last_name || '?')[0]].join('').toUpperCase();
+    var loc  = [p.city, p.state].filter(Boolean).join(', ');
+    var dist = p.distance_miles != null ? p.distance_miles.toFixed(1) + ' mi' : '';
+    var spec = p.primary_specialty || p.specialty || '';
+    var meta = [loc, p.hospital_organization_name ? p.hospital_organization_name.slice(0, 28) : null, p.graduation_year ? 'Class of ' + p.graduation_year : null].filter(Boolean).join(' · ');
+    var flags = [p.is_board_certified ? '<span class="flag fb">⭐ Board</span>' : '', p.is_primary_care ? '<span class="flag fp">🩺 PCP</span>' : '', p.is_clinical_trial ? '<span class="flag ft">🔬 PI</span>' : ''].filter(Boolean).join('');
+    var row = document.createElement('div');
+    row.className = 'pr'; row.id = 'card-' + p.npi;
+    row.innerHTML = '<div class="pr-avatar">' + initials + '</div>'
+      + '<div class="pr-body">'
+      + '<div class="pr-name">' + name + (p.credential ? ' <span style="font-weight:400;color:var(--muted);font-size:11px;">' + p.credential + '</span>' : '') + '</div>'
+      + (spec ? '<div class="pr-spec">' + spec + '</div>' : '')
+      + (meta ? '<div class="pr-meta">' + meta + '</div>' : '')
+      + (flags ? '<div class="pr-flags" style="margin-top:4px;">' + flags + '</div>' : '')
+      + '</div>'
+      + '<div class="pr-right">' + (dist ? '<div class="pr-dist">📍 ' + dist + '</div>' : '') + '</div>';
+    row.addEventListener('click', function() { openProv(p.npi); });
+    list.appendChild(row);
+  });
+}
+
+function renderCovBadge(cov) {
+  var b = document.getElementById('cov-b'); if (!cov) { b.innerHTML = ''; return; }
+  var l = cov.coverage_level || 'unknown', cls = {high:'bh', medium:'bm', low:'bl', none:'bn'}[l] || '';
+  b.innerHTML = '<span class="cov-badge ' + cls + '">' + (l === 'none' ? '⚠ Health Desert' : l.charAt(0).toUpperCase() + l.slice(1) + ' Coverage') + ' · ' + cov.provider_count + ' providers</span>';
+}
+
+function renderGaps(gaps, state, spec) {
+  document.getElementById('res-cnt').innerHTML = '<strong>' + gaps.length + ' underserved area' + (gaps.length !== 1 ? 's' : '') + '</strong>' + (spec ? ' for ' + spec : '') + (state ? ' in ' + state : '');
+  document.getElementById('cov-b').innerHTML = ''; document.getElementById('lm-row').style.display = 'none';
+  var sc = {critical:'sc', severe:'ss', moderate:'sm'};
+  document.getElementById('res-list').innerHTML = !gaps.length ? '<div class="empty-s"><div class="ico">✅</div><div class="etitle">No gaps found</div></div>'
+    : gaps.map(function(g) {
+      var cls = sc[g.severity] || 'sm', nm = g.county_name || 'Unknown', st = g.state || '';
+      var pop = g.population ? (g.population / 1000).toFixed(0) + 'k' : '—';
+      var pct = g.benchmark_per_100k ? Math.min((g.providers_per_100k || 0) / g.benchmark_per_100k * 100, 100) : 0;
+      return '<div class="gap-card ' + cls + '">'
+        + '<div class="gap-top"><div><div class="gap-nm">' + nm + '</div><div class="gap-st">' + (st ? st + ' · ' : '') + 'Pop: ' + pop + '</div></div><span class="sev-b">' + (g.severity ? g.severity.charAt(0).toUpperCase() + g.severity.slice(1) : '—') + '</span></div>'
+        + '<div class="gap-stats"><div class="gap-stat"><div class="gs-v">' + (g.provider_count != null ? g.provider_count : '—') + '</div><div class="gs-l">Providers</div></div><div class="gap-stat"><div class="gs-v">' + (g.providers_per_100k != null ? g.providers_per_100k.toFixed(1) : '—') + '</div><div class="gs-l">Per 100k</div></div><div class="gap-stat"><div class="gs-v">' + (g.benchmark_per_100k != null ? g.benchmark_per_100k.toFixed(1) : '—') + '</div><div class="gs-l">Benchmark</div></div></div>'
+        + '<div class="gap-bw"><div class="gap-bl"><span>Coverage vs Benchmark</span><span>' + pct.toFixed(0) + '%</span></div><div class="gap-bb"><div class="gap-bf" style="width:' + pct + '%"></div></div></div>'
+        + '<div class="gap-foot"><div class="gap-need">Shortage: <strong>' + (g.deficit_per_100k != null ? g.deficit_per_100k.toFixed(1) : '—') + '/100k</strong> · Est. <strong>' + (g.estimated_providers_needed != null ? g.estimated_providers_needed : '—') + '</strong> needed</div>'
+        + (g.county_fips ? '<span class="gap-act" onclick="findNearGap(\'' + g.county_fips + '\',\'' + esc(nm) + '\',\'' + st + '\')">Find providers →</span>' : '')
+        + '</div></div>';
+    }).join('');
+}
+
+/* ── MAP ── */
+function loadGeo() {
+  if (geoCache) return Promise.resolve(geoCache);
+  return fetch('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json')
+    .then(function(r) { return r.json(); })
+    .then(function(us) { geoCache = us; return us; });
+}
+
+function drawMap(items, zip, stateCode, radiusMiles, isGap) {
+  requestAnimationFrame(function() {
+    var canvas = document.getElementById('map-canvas');
+    var rect   = canvas.getBoundingClientRect();
+    var W = rect.width, H = rect.height;
+    if (!W || !H) { console.warn('Map canvas has no dimensions'); return; }
+
+    document.getElementById('map-empty').style.display = 'none';
+    var svgEl = document.getElementById('map-svg');
+    svgEl.style.display = 'block';
+    svgEl.setAttribute('width',  W);
+    svgEl.setAttribute('height', H);
+    svgEl.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+
+    // Normalise coordinate fields — API may return lat/lng at root OR nested
+    var pts = isGap ? [] : items.map(function(p) {
+      var lat = p.latitude  || (p.location && p.location.latitude)  || null;
+      var lng = p.longitude || (p.location && p.location.longitude) || null;
+      return {npi: p.npi, lat: lat, lng: lng, first_name: p.first_name, last_name: p.last_name, primary_specialty: p.primary_specialty, distance_miles: p.distance_miles};
+    }).filter(function(p) { return p.lat && p.lng; });
+
+    var gapPts = isGap ? items.filter(function(g) { return g.latitude && g.longitude; }) : [];
+
+    console.log('[Map] W=' + W + ' H=' + H + ' pts=' + pts.length + ' gapPts=' + gapPts.length + ' zip=' + zip + ' state=' + stateCode);
+    if (!isGap && items.length > 0) {
+      console.log('[Map] Sample provider fields:', Object.keys(items[0]).join(', '));
+      console.log('[Map] Sample lat/lng:', items[0].latitude, items[0].longitude);
+    }
+
+    // Focus point
+    var focusLat = null, focusLng = null;
+    if (pts.length) {
+      focusLat = pts.reduce(function(s, p) { return s + p.lat; }, 0) / pts.length;
+      focusLng = pts.reduce(function(s, p) { return s + p.lng; }, 0) / pts.length;
+    } else if (stateCode && STATE_CENTERS[stateCode]) {
+      focusLat = STATE_CENTERS[stateCode][0];
+      focusLng = STATE_CENTERS[stateCode][1];
+      console.log('[Map] Using state center for', stateCode, focusLat, focusLng);
+    }
+
+    // Scale
+    var targetScale;
+    if (!focusLat) {
+      targetScale = Math.min(W, H) * 1.3;
+    } else if (zip && radiusMiles) {
+      targetScale = radiusMiles <= 10 ? 25000 : radiusMiles <= 25 ? 12000 : radiusMiles <= 50 ? 6000 : 3000;
+    } else {
+      targetScale = 2500; // state view
+    }
+
+    var refProj = d3.geoAlbersUsa().scale(1070).translate([480, 250]);
+    var tx = W / 2, ty = H / 2;
+    if (focusLat && focusLng) {
+      var refPt = refProj([focusLng, focusLat]);
+      if (refPt) {
+        // refPt is in reference space [0..960, 0..500]
+        // Scale it to target space, then offset so it lands at canvas center
+        var k = targetScale / 1070;
+        tx = W / 2 - (refPt[0] - 480) * k;
+        ty = H / 2 - (refPt[1] - 250) * k;
+        console.log('[Map] refPt=' + refPt.map(function(v){return v.toFixed(0);}) + ' k=' + k.toFixed(2) + ' tx=' + tx.toFixed(0) + ' ty=' + ty.toFixed(0));
+      }
+    }
+
+    var proj = d3.geoAlbersUsa().scale(targetScale).translate([tx, ty]);
+    var path = d3.geoPath().projection(proj);
+
+    loadGeo().then(function(us) {
+      var svg = d3.select('#map-svg');
+      svg.selectAll('*').remove();
+
+      // Zoom container
+      var g = svg.append('g').attr('class', 'map-g');
+
+      g.append('g').selectAll('path')
+        .data(topojson.feature(us, us.objects.states).features)
+        .join('path').attr('d', path).attr('fill', '#d4e4f0').attr('stroke', '#92b4c8').attr('stroke-width', 0.8);
+
+      g.append('path')
+        .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+        .attr('d', path).attr('fill', 'none').attr('stroke', '#6a9dba').attr('stroke-width', 0.5);
+
+      if (isGap) {
+        var scMap = {critical:'c', severe:'s', moderate:'m'};
+        gapPts.forEach(function(gap) {
+          var xy = proj([gap.longitude, gap.latitude]); if (!xy) return;
+          var col = SC[scMap[gap.severity]] || SC.m;
+          var r = gap.severity === 'critical' ? 9 : gap.severity === 'severe' ? 7 : 5;
+          g.append('circle').attr('cx', xy[0]).attr('cy', xy[1]).attr('r', r)
+            .attr('fill', col).attr('fill-opacity', 0.85).attr('stroke', '#fff').attr('stroke-width', 1.5)
+            .append('title').text((gap.county_name || '') + ' — ' + (gap.severity || ''));
+        });
+        [[SC.c,'Critical'],[SC.s,'Severe'],[SC.m,'Moderate']].forEach(function(l, i) {
+          svg.append('circle').attr('cx', 14).attr('cy', H - 40 + i * 14).attr('r', 5).attr('fill', l[0]);
+          svg.append('text').attr('x', 24).attr('y', H - 36 + i * 14).attr('font-size', 10).attr('fill', '#4a6f8f').text(l[1]);
+        });
+        document.getElementById('map-lbl').textContent = 'Gap Map';
+        document.getElementById('map-cnt').textContent = gapPts.length + ' mapped';
+      } else {
+        pts.forEach(function(p) {
+          var xy = proj([p.lng, p.lat]); if (!xy) return;
+          var name = [p.first_name, p.last_name].filter(Boolean).join(' ') || 'Provider';
+          g.append('circle').attr('cx', xy[0]).attr('cy', xy[1]).attr('r', 8)
+            .attr('fill', '#03F4D8').attr('fill-opacity', 0.9).attr('stroke', '#fff').attr('stroke-width', 2)
+            .style('cursor', 'pointer')
+            .on('click', function(event) { event.stopPropagation(); openProv(p.npi); })
+            .append('title').text(name + '\n' + (p.primary_specialty || ''));
+        });
+        if (zip && focusLat && focusLng) {
+          var cp = proj([focusLng, focusLat]);
+          if (cp) {
+            g.append('circle').attr('cx', cp[0]).attr('cy', cp[1]).attr('r', 9).attr('fill', '#0D1B3E').attr('stroke', '#03F4D8').attr('stroke-width', 3);
+            g.append('circle').attr('cx', cp[0]).attr('cy', cp[1]).attr('r', 3).attr('fill', '#03F4D8');
+          }
+        }
+        document.getElementById('map-lbl').textContent = 'Provider Map';
+        document.getElementById('map-cnt').textContent = pts.length + ' mapped';
+      }
+
+      // ── Zoom & Pan ──
+      var zoom = d3.zoom()
+        .scaleExtent([0.5, 40])
+        .on('zoom', function(event) {
+          g.attr('transform', event.transform);
+          // Scale down dot/stroke as you zoom in so dots don't get huge
+          var z = event.transform.k;
+          g.selectAll('circle').attr('r', function() {
+            var base = parseFloat(d3.select(this).attr('data-r') || d3.select(this).attr('r'));
+            d3.select(this).attr('data-r', base);
+            return Math.max(3, base / Math.sqrt(z));
+          });
+          g.selectAll('path').attr('stroke-width', function() {
+            return d3.select(this).classed('border') ? 0.5 / z : 0.8 / z;
+          });
+        });
+
+      svg.call(zoom);
+
+      // Zoom controls
+      svg.selectAll('.zoom-btn').remove();
+      var btnY = 10;
+      [['+', 2, btnY], ['−', 0.5, btnY + 30], ['⌂', 1, btnY + 68]].forEach(function(b) {
+        var btn = svg.append('g').attr('class', 'zoom-btn').style('cursor', 'pointer')
+          .on('click', function() {
+            if (b[0] === '⌂') {
+              svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity);
+            } else {
+              svg.transition().duration(250).call(zoom.scaleBy, b[1]);
+            }
+          });
+        btn.append('rect').attr('x', W - 34).attr('y', b[2]).attr('width', 24).attr('height', 24)
+          .attr('rx', 5).attr('fill', '#fff').attr('stroke', '#c4d4e4').attr('stroke-width', 1)
+          .style('filter', 'drop-shadow(0 1px 2px rgba(0,0,0,.15))');
+        btn.append('text').attr('x', W - 22).attr('y', b[2] + 16).attr('text-anchor', 'middle')
+          .attr('font-size', b[0] === '⌂' ? 13 : 16).attr('fill', '#4a6f8f').attr('font-weight', '600')
+          .text(b[0]);
+      });
+
+    }).catch(function(e) { console.error('Map GeoJSON load error:', e); });
+  });
+}
+
+function findNearGap(fips, name, state) {
+  switchTab('proximity'); document.getElementById('p-state').value = state; updPills(); setLoading(true);
+  var p = new URLSearchParams({county_fips: fips, limit: 50}); if (selSp.g) p.set('primary_specialty', selSp.g);
+  apiFetch('/v1/providers?' + p).then(function(d) {
+    var providers = d.data || [];
+    pgState = {cursor:(d.paging&&d.paging.next_cursor)||null, hasMore:(d.paging&&d.paging.has_more)||false, loading:false, loaded:providers.length, total:null, params:p, mode:'prox'};
+    renderProviders(providers, '<strong>' + providers.length + '</strong> providers near <span style="color:var(--rust)">' + name + '</span>', true);
+    drawMap(providers, null, state, 0, false);
+    setLoading(false);
+  }).catch(function(e) { showErr(e.message || 'Could not load providers'); setLoading(false); });
+}
+
+/* ── DRAWER ── */
+function openProv(npi) {
+  document.querySelectorAll('.pr').forEach(function(c) { c.classList.remove('selected'); });
+  var card = document.getElementById('card-' + npi);
+  if (card) { card.classList.add('selected'); card.scrollIntoView({block:'nearest', behavior:'smooth'}); }
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('dw-nm').textContent = 'Loading…'; document.getElementById('dw-sub').textContent = '';
+  document.getElementById('dw-bd').innerHTML = '<div class="empty-s"><div class="spinner"></div></div>';
+  currentDrawerProvider = null;
+  Promise.all([
+    apiFetch('/v1/providers/' + npi),
+    apiFetch('/v1/providers/' + npi + '/diagnoses?limit=8').catch(function() { return {data:[]}; })
+  ]).then(function(res) {
+    var p = res[0].data || {}, id = p.identity || {}, addr = p.address || {}, loc = p.location || {};
+    var spec = p.specialties || {}, org = p.organizations || {}, edu = p.education || {};
+    var lic = p.licensing || {}, stat = p.status || {}, cert = p.certifications || {}, contact = p.contact || {};
+    var fullName = [id.prefix, id.first_name, id.last_name, id.credential].filter(Boolean).join(' ') || npi;
+    document.getElementById('dw-nm').textContent  = fullName;
+    document.getElementById('dw-sub').textContent = spec.primary_specialty || '—';
+    currentDrawerProvider = {npi: npi, name: fullName, data: p};
+    var diags = res[1].data || [];
+    var diagHtml = diags.length
+      ? diags.map(function(d) { return '<div class="di-item"><div class="di-info"><div class="di-code">' + d.icd10_code + '</div><div class="di-desc">' + (d.description || '') + '</div></div><div class="di-bg"><div class="di-fill" style="width:' + Math.min(d.percentage || 0, 100) + '%"></div></div><div class="di-pct">' + (d.percentage || 0).toFixed(1) + '%</div></div>'; }).join('')
+      : '<div style="color:var(--muted);font-size:11px;padding:4px 0;">No diagnosis data available.</div>';
+    var flags = [(stat.is_board_certified || cert.board_specialty) ? '<span class="flag fb">⭐ Board Certified</span>' : '', stat.is_primary_care ? '<span class="flag fp">🩺 Primary Care</span>' : '', stat.is_clinical_trial ? '<span class="flag ft">🔬 Clinical Trial PI</span>' : ''].filter(Boolean).join(' ');
+    document.getElementById('dw-bd').innerHTML =
+      (flags ? '<div class="d-flags">' + flags + '</div>' : '')
+      + '<div class="ds"><h4>Identity</h4><div class="dg">' + df('NPI', id.npi || npi) + df('Credential', id.credential) + df('Gender', id.gender) + df('Phone', contact.phone) + '</div></div>'
+      + '<div class="ds"><h4>Location</h4><div class="dg"><div class="df" style="grid-column:1/-1"><div class="lbl">Address</div><div class="val">' + [addr.city, addr.state, addr.zip].filter(Boolean).join(', ') + '</div></div>' + df('County', addr.county) + df('Timezone', loc.time_zone) + '</div></div>'
+      + '<div class="ds"><h4>Specialties</h4><div class="dg">' + df('Primary', spec.primary_specialty) + df('Secondary', spec.secondary_specialty) + df('Board', cert.board_specialty || spec.board_specialty) + df('CMS Type', spec.cms_type) + '</div></div>'
+      + '<div class="ds"><h4>Affiliations</h4><div class="dg"><div class="df" style="grid-column:1/-1"><div class="lbl">Hospital / Org</div><div class="val">' + (org.hospital_organization_name || '—') + '</div></div><div class="df" style="grid-column:1/-1"><div class="lbl">IDN / Health System</div><div class="val">' + (org.integrated_delivery_network || '—') + '</div></div></div></div>'
+      + '<div class="ds"><h4>Education</h4><div class="dg"><div class="df" style="grid-column:1/-1"><div class="lbl">Medical School</div><div class="val">' + (edu.medical_school || '—') + '</div></div>' + df('Grad Year', edu.graduation_year) + df('License State(s)', (lic.license_states && lic.license_states.join(', ')) || lic.license_state) + '</div></div>'
+      + '<div class="ds"><h4>Top Diagnoses Treated</h4>' + diagHtml + '</div>';
+  }).catch(function() { document.getElementById('dw-bd').innerHTML = '<div class="empty-s"><div class="etitle">Failed to load provider</div></div>'; });
+}
+
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.querySelectorAll('.pr').forEach(function(c) { c.classList.remove('selected'); });
+  currentDrawerProvider = null;
+}
+
+function showEhrExport() {
+  if (!currentDrawerProvider || !currentDrawerProvider.data) { alert('Open a provider first.'); return; }
+  var p = currentDrawerProvider.data, id = p.identity || {}, addr = p.address || {}, spec = p.specialties || {}, org = p.organizations || {}, contact = p.contact || {};
+  var ehr = 'REFERRAL SUMMARY\n' + '='.repeat(40) + '\nDate:         ' + new Date().toLocaleDateString() + '\nNPI:          ' + (id.npi || '—') + '\nProvider:     ' + [id.prefix, id.first_name, id.last_name].filter(Boolean).join(' ') + '\nCredential:   ' + (id.credential || '—') + '\nSpecialty:    ' + (spec.primary_specialty || '—') + '\n' + '-'.repeat(40) + '\nPRACTICE INFORMATION\nOrganization: ' + (org.hospital_organization_name || '—') + '\nIDN / System: ' + (org.integrated_delivery_network || '—') + '\nAddress:      ' + [addr.city, addr.state, addr.zip].filter(Boolean).join(', ') + '\nPhone:        ' + (contact.phone || '—') + '\n' + '-'.repeat(40) + '\nQUALIFICATIONS\nBoard Certified:   ' + ((p.status && p.status.is_board_certified) ? 'Yes' : 'No') + '\nPrimary Care:      ' + ((p.status && p.status.is_primary_care) ? 'Yes' : 'No') + '\nClinical Trial PI: ' + ((p.status && p.status.is_clinical_trial) ? 'Yes' : 'No') + '\n' + '='.repeat(40);
+  var existing = document.getElementById('ehr-export-box'); if (existing) existing.remove();
+  document.getElementById('dw-bd').insertAdjacentHTML('beforeend', '<div class="ehr-box" id="ehr-export-box"><h4>📋 EHR Referral Export</h4><pre class="ehr-pre">' + ehr + '</pre><button class="btn-copy-ehr" onclick="copyEhr()">📋 Copy to Clipboard</button></div>');
+  document.getElementById('ehr-export-box').scrollIntoView({behavior: 'smooth'});
+  window._ehrText = ehr;
+}
+function copyEhr() {
+  navigator.clipboard.writeText(window._ehrText || '').then(function() {
+    var btn = document.querySelector('.btn-copy-ehr');
+    if (btn) { btn.textContent = '✓ Copied!'; setTimeout(function() { btn.textContent = '📋 Copy to Clipboard'; }, 2000); }
+  }).catch(function() {});
+}
+
+/* ── SAVED SEARCHES ── */
+function toggleSavedPanel() { document.getElementById('saved-panel').classList.toggle('open'); renderSavedPanel(); }
+function saveCurrentSearch() {
+  var name = prompt('Name this search:'); if (!name || !name.trim()) return;
+  var filters = [];
+  if (curTab === 'proximity') { var zip = document.getElementById('p-zip').value.trim(), rad = document.getElementById('p-rad').value, st = document.getElementById('p-state').value; if (zip) filters.push('📍 ' + zip + ' · ' + rad + 'mi'); else if (st) filters.push('🗺 ' + st); if (selSp.p) filters.push('💊 ' + selSp.p); }
+  else if (curTab === 'diagnosis') { if (selIcd) filters.push('🩺 ' + selIcd.code); var dst = document.getElementById('d-state').value; if (dst) filters.push('📍 ' + dst); }
+  savedSearches.push({id: Date.now(), name: name.trim(), tab: curTab, filters: filters, state: {zip: document.getElementById('p-zip').value, rad: document.getElementById('p-rad').value, pState: document.getElementById('p-state').value, sp: selSp.p, icd: selIcd, dState: document.getElementById('d-state').value}});
+  var cnt = document.getElementById('saved-count'); cnt.style.display = 'inline'; cnt.textContent = savedSearches.length;
+  renderSavedPanel();
+}
+function renderSavedPanel() {
+  var body = document.getElementById('saved-body');
+  if (!savedSearches.length) { body.innerHTML = '<div class="saved-empty">No saved searches yet.<br>Run a search and click 🔖 Save Search.</div>'; return; }
+  body.innerHTML = savedSearches.map(function(s) { return '<div class="saved-item"><div class="saved-item-name">' + s.name + '</div><div class="saved-item-meta">' + s.tab.charAt(0).toUpperCase() + s.tab.slice(1) + ' search</div><div class="saved-item-pills">' + s.filters.map(function(f) { return '<span class="saved-pill">' + f + '</span>'; }).join('') + '</div><div class="saved-item-actions"><button class="btn-run-saved" onclick="runSavedSearch(' + s.id + ')">▶ Run Again</button><button class="btn-del-saved" onclick="deleteSaved(' + s.id + ')">Delete</button></div></div>'; }).join('');
+}
+function runSavedSearch(id) {
+  var s = savedSearches.find(function(x) { return x.id === id; }); if (!s) return;
+  document.getElementById('saved-panel').classList.remove('open'); switchTab(s.tab);
+  if (s.state.zip)    document.getElementById('p-zip').value    = s.state.zip;
+  if (s.state.rad)    setRadius(parseInt(s.state.rad));
+  if (s.state.pState) document.getElementById('p-state').value  = s.state.pState;
+  if (s.state.sp)     pickSp('p', s.state.sp, 0);
+  if (s.state.icd)    pickIcd(s.state.icd.code, s.state.icd.desc);
+  if (s.state.dState) document.getElementById('d-state').value  = s.state.dState;
+  if (s.tab === 'proximity') runProx(); else if (s.tab === 'diagnosis') runDiag();
+}
+function deleteSaved(id) {
+  savedSearches = savedSearches.filter(function(s) { return s.id !== id; });
+  var cnt = document.getElementById('saved-count'); if (savedSearches.length) cnt.textContent = savedSearches.length; else cnt.style.display = 'none';
+  renderSavedPanel();
+}
+
+/* ── UTILS ── */
+function setLoading(on) {
+  ['btn-p','btn-d','btn-g'].forEach(function(id) { var el = document.getElementById(id); if (el) el.disabled = on; });
+  var lm = document.getElementById('lm-row'); if (lm) lm.style.display = 'none';
+  if (on) {
+    document.getElementById('res-cnt').innerHTML = '<span class="spinner"></span> Searching…';
+    document.getElementById('res-list').innerHTML = '<div class="empty-s"><div class="spinner"></div></div>';
+    document.getElementById('cov-b').innerHTML = '';
+    document.getElementById('map-svg').style.display = 'none';
+    document.getElementById('map-empty').style.display = 'flex';
+    var bs = document.getElementById('btn-save-search'); if (bs) bs.style.display = 'none';
+  }
+}
+function showErr(msg) {
+  document.getElementById('res-cnt').textContent = 'Error';
+  document.getElementById('res-list').innerHTML = '<div class="empty-s"><div class="ico">⚠️</div><div class="etitle">Something went wrong</div><div class="esub">' + msg + '</div></div>';
+}
+function df(label, val) { return '<div class="df"><div class="lbl">' + label + '</div><div class="val">' + (val || '—') + '</div></div>'; }
+function esc(s) { return (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'"); }
+
+init();
+</script>
+</body>
+</html>

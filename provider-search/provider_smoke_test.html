@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Provider Search Smoke Test</title>
+<style>
+  body { font-family: monospace; padding: 24px; background: #0f0f0f; color: #e0e0e0; max-width: 800px; margin: 0 auto; }
+  h2 { color: #7dd3fc; margin-bottom: 4px; }
+  .subtitle { color: #6b7280; font-size: 13px; margin-bottom: 24px; }
+  .row { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  input, select { background: #1e1e1e; border: 1px solid #333; color: #e0e0e0; padding: 8px 12px; border-radius: 6px; font-family: monospace; font-size: 14px; }
+  input { flex: 1; min-width: 120px; }
+  button { background: #2563eb; color: white; border: none; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-family: monospace; font-size: 14px; }
+  button:hover { background: #1d4ed8; }
+  button:disabled { background: #374151; cursor: not-allowed; }
+  .status { font-size: 12px; color: #9ca3af; margin-bottom: 12px; min-height: 18px; }
+  .error { color: #f87171; background: #1f0a0a; border: 1px solid #7f1d1d; padding: 12px; border-radius: 6px; margin-bottom: 12px; font-size: 13px; white-space: pre-wrap; }
+  .success-banner { color: #4ade80; background: #0a1f0e; border: 1px solid #166534; padding: 10px 14px; border-radius: 6px; margin-bottom: 12px; font-size: 13px; }
+  .card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; }
+  .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+  .card-name { color: #f0f0f0; font-size: 15px; font-weight: bold; }
+  .card-dist { background: #1e3a5f; color: #7dd3fc; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+  .card-meta { color: #9ca3af; font-size: 12px; line-height: 1.8; }
+  .tag { display: inline-block; background: #1e2a1e; color: #86efac; border: 1px solid #166534; padding: 1px 7px; border-radius: 3px; font-size: 11px; margin-right: 4px; }
+  .raw-toggle { color: #6b7280; font-size: 11px; cursor: pointer; margin-bottom: 6px; }
+  .raw-toggle:hover { color: #9ca3af; }
+  pre { background: #111; border: 1px solid #222; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 11px; color: #a3e635; max-height: 300px; overflow-y: auto; display: none; }
+  label { font-size: 12px; color: #9ca3af; }
+</style>
+</head>
+<body>
+
+<h2>🔬 Provider Search — Smoke Test</h2>
+<p class="subtitle">Testing: <code>GET /v1/providers</code> via local proxy → <code>localhost:3131</code></p>
+
+<div class="row">
+  <div style="flex:1;min-width:120px">
+    <label>ZIP Code</label><br>
+    <input id="zip" type="text" value="" maxlength="5" placeholder="77001 (or use State)" />
+  </div>
+  <div style="flex:1;min-width:60px">
+    <label>Radius (miles)</label><br>
+    <input id="miles" type="number" value="25" min="1" max="100" />
+  </div>
+  <div style="flex:1;min-width:80px">
+    <label>State (if no ZIP)</label><br>
+    <input id="state" type="text" value="TX" maxlength="2" placeholder="TX" style="text-transform:uppercase" />
+  </div>
+  <div style="flex:1;min-width:160px">
+    <label>Specialty (optional)</label><br>
+    <input id="specialty" type="text" value="" placeholder="e.g. Cardiology" />
+  </div>
+  <div style="flex:1;min-width:60px">
+    <label>Limit</label><br>
+    <input id="limit" type="number" value="10" min="1" max="100" />
+  </div>
+</div>
+<div class="row">
+  <button id="btn" onclick="search()">Search</button>
+</div>
+
+<div class="status" id="status">Ready.</div>
+<div id="output"></div>
+
+<script>
+const API_BASE = 'http://localhost:3131'; // open this file locally in your browser — NOT via Claude artifact
+const API_KEY  = 'lqs_dev_12345678901234567890';
+
+async function search() {
+  const zip       = document.getElementById('zip').value.trim();
+  const miles     = document.getElementById('miles').value;
+  const specialty = document.getElementById('specialty').value.trim();
+  const limit     = document.getElementById('limit').value;
+  const btn       = document.getElementById('btn');
+  const status    = document.getElementById('status');
+  const output    = document.getElementById('output');
+
+  if (zip && !/^\d{5}$/.test(zip)) {
+    showError('ZIP must be exactly 5 digits.'); return;
+  }
+  if (!zip && !document.getElementById('state').value) {
+    showError('Provide a ZIP or a State.'); return;
+  }
+
+  btn.disabled = true;
+  status.textContent = '⏳ Fetching...';
+  output.innerHTML = '';
+
+  let url = `${API_BASE}/v1/providers?limit=${limit}`;
+  if (zip) url += `&zip=${zip}&radius_miles=${miles}`;
+  else url += `&state=${document.getElementById('state').value}`;
+  if (specialty) url += `&primary_specialty=${encodeURIComponent(specialty)}`;
+
+  status.textContent = `→ ${url}`;
+
+  try {
+    const res = await fetch(url, {
+      headers: { 'X-API-Key': API_KEY }
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      showError(`HTTP ${res.status}\n\n${JSON.stringify(data, null, 2)}`);
+      return;
+    }
+
+    const providers = data.data || [];
+    const meta      = data.meta || {};
+
+    if (providers.length === 0) {
+      output.innerHTML = `<div class="success-banner">✅ API responded — no providers found for these filters.</div>`;
+      showRaw(data);
+      return;
+    }
+
+    const found = meta?.search?.results_found ?? providers.length;
+    output.innerHTML = `<div class="success-banner">✅ API is live! ${found} result(s) near ZIP ${zip} within ${miles} mi${specialty ? ' · ' + specialty : ''}</div>`;
+
+    providers.forEach(p => {
+      const name = [p.prefix, p.first_name, p.last_name, p.credential].filter(Boolean).join(' ');
+      const dist = p.distance_miles != null ? `${p.distance_miles.toFixed(1)} mi` : '';
+      const loc  = [p.city, p.state, p.zip].filter(Boolean).join(', ');
+      output.innerHTML += `
+        <div class="card">
+          <div class="card-header">
+            <span class="card-name">${name || 'Unknown Provider'}</span>
+            ${dist ? `<span class="card-dist">📍 ${dist}</span>` : ''}
+          </div>
+          <div class="card-meta">
+            ${p.primary_specialty ? `<span class="tag">${p.primary_specialty}</span>` : ''}
+            ${p.credential ? `<span class="tag">${p.credential}</span>` : ''}
+            <br>
+            ${loc ? `📌 ${loc}` : ''}
+            ${p.phone ? ` &nbsp;|&nbsp; 📞 ${p.phone}` : ''}
+            ${p.npi ? `<br>NPI: <code style="color:#facc15">${p.npi}</code>` : ''}
+          </div>
+        </div>`;
+    });
+
+    showRaw(data);
+
+  } catch (err) {
+    if (err.message?.includes('fetch') || err instanceof TypeError) {
+      showError(`CORS BLOCKED ❌\n\nThe browser blocked the request (CORS policy).\nWe'll need a proxy. Error:\n${err.message}`);
+    } else {
+      showError(`Unexpected error:\n${err.message}`);
+    }
+  } finally {
+    btn.disabled = false;
+    status.textContent = 'Done.';
+  }
+}
+
+function showError(msg) {
+  document.getElementById('output').innerHTML = `<div class="error">❌ ${msg}</div>`;
+}
+
+function showRaw(data) {
+  const id = 'raw_' + Date.now();
+  document.getElementById('output').innerHTML += `
+    <div class="raw-toggle" onclick="toggleRaw('${id}')">▶ Show raw JSON</div>
+    <pre id="${id}">${JSON.stringify(data, null, 2)}</pre>`;
+}
+
+function toggleRaw(id) {
+  const el = document.getElementById(id);
+  const tog = el.previousElementSibling;
+  if (el.style.display === 'block') { el.style.display = 'none'; tog.textContent = '▶ Show raw JSON'; }
+  else { el.style.display = 'block'; tog.textContent = '▼ Hide raw JSON'; }
+}
+</script>
+</body>
+</html>
